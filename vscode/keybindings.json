@@ -1,0 +1,20 @@
+// VSCode keybindings - terminal parity with iTerm.
+// All bindings are scoped "when": "terminalFocus" so they ONLY affect the
+// integrated terminal and leave editor shortcuts (Cmd+D, Cmd+K, Cmd+W) untouched.
+// Sequences match iTerm "Natural Text Editing": ESC=u001b A=u0001 E=u0005 DEL=u007f U=u0015
+[
+    // -- Text-editing parity (zsh emacs mode reads these identically) --
+    { "key": "alt+left", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u001bb" }, "when": "terminalFocus" },
+    { "key": "alt+right", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u001bf" }, "when": "terminalFocus" },
+    { "key": "cmd+left", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u0001" }, "when": "terminalFocus" },
+    { "key": "cmd+right", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u0005" }, "when": "terminalFocus" },
+    { "key": "alt+backspace", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u001b\u007f" }, "when": "terminalFocus" },
+    { "key": "cmd+backspace", "command": "workbench.action.terminal.sendSequence", "args": { "text": "\u0015" }, "when": "terminalFocus" },
+
+    // -- Terminal management parity with iTerm defaults --
+    { "key": "cmd+k", "command": "workbench.action.terminal.clear", "when": "terminalFocus" },
+    { "key": "cmd+d", "command": "workbench.action.terminal.split", "when": "terminalFocus" },
+    { "key": "cmd+w", "command": "workbench.action.terminal.kill", "when": "terminalFocus" },
+    { "key": "cmd+alt+left", "command": "workbench.action.terminal.focusPreviousPane", "when": "terminalFocus" },
+    { "key": "cmd+alt+right", "command": "workbench.action.terminal.focusNextPane", "when": "terminalFocus" }
+]

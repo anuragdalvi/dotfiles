@@ -1,0 +1,175 @@
+{
+    // ─── Workbench & UI ───────────────────────────────────────────────────────
+    "workbench.colorTheme": "Visual Studio Dark",
+    "workbench.settings.editor": "json",
+    "diffEditor.renderSideBySide": false,
+    // ─── Editor ───────────────────────────────────────────────────────────────
+    "editor.bracketPairColorization.enabled": true,
+    "editor.fontSize": 14,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "editor.guides.bracketPairs": "active",
+    "editor.semanticTokenColorCustomizations": {
+        "rules": {
+            "enum": "#b8ce82",
+            "interface": {
+                "foreground": "#b8ce82"
+            },
+            "namespace": "#ccc",
+            "struct": {
+                "foreground": "#86C691"
+            }
+        }
+    },
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "entity.name.type.interface.cs",
+                "settings": {
+                    "foreground": "#b8ce82"
+                }
+            },
+            {
+                "scope": "entity.name.type.enum.cs",
+                "settings": {
+                    "foreground": "#b8ce82"
+                }
+            },
+            {
+                "scope": "entity.name.type.struct.cs",
+                "settings": {
+                    "foreground": "#86C691"
+                }
+            },
+            {
+                "scope": "variable.other.enummember.cs",
+                "settings": {
+                    "foreground": "#4FC1FF"
+                }
+            }
+        ]
+    },
+    // ─── Files ────────────────────────────────────────────────────────────────
+    "debug.inlineValues": "off",
+    "files.associations": {
+        "*.hcl": "terraform"
+    },
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    // ─── Language: C# ─────────────────────────────────────────────────────────
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    // ─── Language: Go ─────────────────────────────────────────────────────────
+    "[go]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": false
+    },
+    // ─── Language: JSON ───────────────────────────────────────────────────────
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    // ─── Language: Python ─────────────────────────────────────────────────────
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    // ─── Language: Terraform ──────────────────────────────────────────────────
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file"
+    },
+    "[terraform-vars]": {
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.formatOnSave": true
+    },
+    // ─── Language: YAML ───────────────────────────────────────────────────────
+    "[yaml]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    // ─── Go Tooling ───────────────────────────────────────────────────────────
+    "go.coverOnSingleTest": true,
+    "go.formatTool": "gofumpt",
+    "go.inlayHints.parameterNames": true,
+    "go.lintOnSave": "package",
+    "go.lintTool": "golangci-lint",
+    "go.testTimeout": "120s",
+    "go.toolsManagement.autoUpdate": true,
+    // ─── Python Tooling ───────────────────────────────────────────────────────
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.terminal.activateEnvironment": true,
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    // ─── .NET / C# Tooling ────────────────────────────────────────────────────
+    "csharp.maxProjectFileCountForDiagnosticAnalysis": 1000,
+    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFilesOnly",
+    "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFilesOnly",
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "dotnet.format.enable": true,
+    "dotnet.unitTest.runSettingsPath": ".runsettings",
+    // ─── YAML (Red Hat extension) ─────────────────────────────────────────────
+    "yaml.format.enable": true,
+    "yaml.format.printWidth": 120,
+    "yaml.format.proseWrap": "preserve",
+    "yaml.format.singleQuote": false,
+    // ─── Terraform ────────────────────────────────────────────────────────────
+    "terraform.languageServer.enable": true,
+    // ─── Makefile ─────────────────────────────────────────────────────────────
+    "makefile.configureOnOpen": false,
+    // ─── Git & GitLens ────────────────────────────────────────────────────────
+    "gitlens.ai.model": "anthropic:claude-sonnet-4-5",
+    // ─── Claude Code ──────────────────────────────────────────────────────────
+    "claudeCode.disableLoginPrompt": true,
+    "claudeCode.preferredLocation": "panel",
+    // ─── Error Lens ───────────────────────────────────────────────────────────
+    "errorLens.delay": 300,
+    "errorLens.enabledDiagnosticLevels": [
+        "error",
+        "warning"
+    ],
+    "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
+    "yaml.schemas": {
+        "file:///home/adalvi/.vscode/extensions/continue.continue-1.2.22-linux-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///Users/anurag/.vscode/extensions/continue.continue-1.2.22-darwin-arm64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ]
+    },
+    "vs-kubernetes": {
+        "vscode-kubernetes.kubectl-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/kubectl/kubectl",
+        "vscode-kubernetes.helm-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
+        "vscode-kubernetes.minikube-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube"
+    },
+    // ─── Integrated Terminal (productivity / iTerm parity) ────────────────────
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.altClickMovesCursor": true,
+    "terminal.integrated.macOptionClickForcesSelection": false,
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.shellIntegration.history": 10000
+}
