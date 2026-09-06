@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "leader_timeout": 1500,
+  "keybinds": {
+    "leader": "ctrl+x",
+    "command_list": "ctrl+p",
+    "help_show": "<leader>?",
+    "agent_list": "<leader>a",
+    "editor_open": "<leader>e",
+    "session_new": "<leader>n",
+    "session_list": "<leader>l",
+    "status_view": "<leader>s",
+    "model_list": "<leader>m",
+    "session_compact": "<leader>c",
+    "session_parent": "<leader>up",
+    "session_child_first": "<leader>down",
+    "session_child_cycle": "<leader>right",
+    "session_child_cycle_reverse": "<leader>left",
+    "messages_page_up": "pageup",
+    "messages_page_down": "pagedown",
+    "messages_copy": "<leader>y"
+  }
+}

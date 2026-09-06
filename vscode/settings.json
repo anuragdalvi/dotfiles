@@ -151,25 +151,20 @@
         "error",
         "warning"
     ],
-    "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
-    "yaml.schemas": {
-        "file:///home/adalvi/.vscode/extensions/continue.continue-1.2.22-linux-x64/config-yaml-schema.json": [
-            ".continue/**/*.yaml"
-        ],
-        "file:///Users/anurag/.vscode/extensions/continue.continue-1.2.22-darwin-arm64/config-yaml-schema.json": [
-            ".continue/**/*.yaml"
-        ]
-    },
-    "vs-kubernetes": {
-        "vscode-kubernetes.kubectl-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/kubectl/kubectl",
-        "vscode-kubernetes.helm-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
-        "vscode-kubernetes.minikube-path-linux": "/home/adalvi/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube"
-    },
     // ─── Integrated Terminal (productivity / iTerm parity) ────────────────────
     "terminal.integrated.copyOnSelection": true,
     "terminal.integrated.altClickMovesCursor": true,
-    "terminal.integrated.macOptionClickForcesSelection": false,
     "terminal.integrated.scrollback": 10000,
     "terminal.integrated.shellIntegration.enabled": true,
-    "terminal.integrated.shellIntegration.history": 10000
+    "terminal.integrated.shellIntegration.history": 1000,
+    // ─── Mise (tool version & env manager) ──────────────────────────────────
+    "mise.enable": true,
+    "mise.configureExtensionsAutomatically": true,
+    "mise.configureExtensionsIncludeGlobalTools": false,
+    "mise.configureExtensionsUseShims": true,
+    "mise.updateEnvAutomatically": true,
+    "mise.enableToolLinks": true,
+    "chat.viewSessions.orientation": "stacked",
+    "docker.extension.enableComposeLanguageServer": false,
+    "gitlens.views.searchAndCompare.files.layout": "tree"
 }
