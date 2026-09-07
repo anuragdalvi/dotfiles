@@ -81,3 +81,6 @@ fi
 if [[ -r "$XDG_CONFIG_HOME/zsh/completions/_opencode" ]]; then
   source "$XDG_CONFIG_HOME/zsh/completions/_opencode"
 fi
+
+# Load machine-specific settings that should not be committed to dotfiles.
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
