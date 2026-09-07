@@ -144,7 +144,7 @@ if vim.fn.executable 'rg' == 1 then
   vim.opt.grepformat = '%f:%l:%c:%m'
 end
 
--- [[ Go language support ]]
+-- [[ Language support ]]
 -- gopls is an external tool (see inventory doc), not a plugin. Neovim's
 -- built-in LSP client talks to it directly.
 if vim.fn.executable 'gopls' == 1 then
@@ -154,6 +154,25 @@ if vim.fn.executable 'gopls' == 1 then
     root_markers = { 'go.work', 'go.mod', '.git' },
   })
   vim.lsp.enable 'gopls'
+end
+
+-- BasedPyright supplies Python completion, navigation, type checking, and
+-- diagnostics. Project environments and formatting remain project-specific.
+if vim.fn.executable 'basedpyright-langserver' == 1 then
+  vim.lsp.config('basedpyright', {
+    cmd = { 'basedpyright-langserver', '--stdio' },
+    filetypes = { 'python' },
+    root_markers = {
+      'pyrightconfig.json',
+      'pyproject.toml',
+      'setup.py',
+      'setup.cfg',
+      'requirements.txt',
+      'Pipfile',
+      '.git',
+    },
+  })
+  vim.lsp.enable 'basedpyright'
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -170,9 +189,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('<leader>S', fzf.lsp_live_workspace_symbols, 'Workspace symbols')
     map('<leader>r', vim.lsp.buf.rename, 'Rename symbol')
     map('<leader>a', vim.lsp.buf.code_action, 'Code actions')
-    map('<leader>F', function()
-      vim.lsp.buf.format { async = true }
-    end, 'Format buffer')
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+    if client and client.name == 'basedpyright' then
+      vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
+    end
+    if client and client:supports_method 'textDocument/formatting' then
+      map('<leader>F', function()
+        vim.lsp.buf.format { async = true }
+      end, 'Format buffer')
+    end
   end,
 })
 
