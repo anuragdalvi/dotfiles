@@ -1,8 +1,8 @@
 -- Minimal Neovim configuration.
 -- See the Workspace notes in the Obsidian vault for the full key reference.
 --
--- Neovim's built-in package manager installs two pinned plugins: Oil for
--- structural browsing and fzf-lua for direct jumps and search.
+-- Neovim's built-in package manager installs pinned plugins for browsing,
+-- searching, and the Cyberdream colorscheme.
 
 -- Leader key. <leader> below means <Space>.
 vim.g.mapleader = ' '
@@ -17,7 +17,28 @@ vim.pack.add({
     src = 'https://github.com/ibhagwan/fzf-lua',
     version = '05e44d38de0a79c11fba5f7bf8138791b1dbdd1e',
   },
+  {
+    src = 'https://github.com/scottmckendry/cyberdream.nvim',
+  },
+  {
+    src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+  },
+  {
+    src = 'https://github.com/nvim-mini/mini.nvim',
+  },
+  {
+    src = 'https://github.com/MeanderingProgrammer/render-markdown.nvim',
+  },
 }, { confirm = false })
+
+require('cyberdream').setup({
+  variant = 'default',
+  transparent = false,
+  terminal_colors = true,
+})
+vim.cmd.colorscheme 'cyberdream'
+
+require('render-markdown').setup({})
 
 require('oil').setup({
   columns = {},

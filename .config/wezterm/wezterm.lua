@@ -18,13 +18,6 @@ return {
   enable_tab_bar = false,
   scrollback_lines = 10000,
   check_for_updates = false,
-  colors = {
-    foreground = '#d8e7f3',
-    background = '#0b1f33',
-    cursor_bg = '#64b5f6',
-    cursor_fg = '#0b1f33',
-    selection_bg = '#244f73',
-    selection_fg = '#ffffff',
-  },
+  color_scheme = 'Tokyo Night Storm',
   window_padding = { left = 4, right = 4, top = 4, bottom = 4 },
 }
