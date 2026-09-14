@@ -47,6 +47,9 @@ vim.pack.add({
   {
     src = 'https://github.com/sindrets/diffview.nvim',
   },
+  {
+    src = 'https://github.com/stevearc/conform.nvim',
+  },
 }, { confirm = false })
 
 require('cyberdream').setup({
@@ -66,6 +69,16 @@ require('neogit').setup({
 })
 require('gitsigns').setup({})
 require('diffview').setup({})
+local conform = require('conform')
+conform.setup({
+  formatters_by_ft = {
+    go = { 'gofmt', lsp_format = 'fallback' },
+    terraform = { 'terraform_fmt', lsp_format = 'fallback' },
+    ['terraform-vars'] = { 'terraform_fmt', lsp_format = 'fallback' },
+    python = { 'ruff_format', lsp_format = 'fallback' },
+  },
+  format_on_save = false,
+})
 
 require('oil').setup({
   columns = {},
@@ -241,13 +254,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
     if client and client.name == 'basedpyright' then
       vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
     end
-    if client and client:supports_method 'textDocument/formatting' then
-      map('<leader>F', function()
-        vim.lsp.buf.format { async = true }
-      end, 'Format buffer')
-    end
   end,
 })
+
+vim.keymap.set('n', '<leader>F', function()
+  conform.format({ async = true, lsp_format = 'fallback' })
+end, { desc = 'Format buffer' })
 
 -- Diagnostic navigation, available even before an LSP attaches.
 vim.keymap.set('n', ']d', function()
