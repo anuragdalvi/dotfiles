@@ -29,6 +29,24 @@ vim.pack.add({
   {
     src = 'https://github.com/MeanderingProgrammer/render-markdown.nvim',
   },
+  {
+    src = 'https://github.com/nvim-lua/plenary.nvim',
+  },
+  {
+    src = 'https://github.com/nvim-telescope/telescope.nvim',
+  },
+  {
+    src = 'https://github.com/pwntester/octo.nvim',
+  },
+  {
+    src = 'https://github.com/NeogitOrg/neogit',
+  },
+  {
+    src = 'https://github.com/lewis6991/gitsigns.nvim',
+  },
+  {
+    src = 'https://github.com/sindrets/diffview.nvim',
+  },
 }, { confirm = false })
 
 require('cyberdream').setup({
@@ -39,6 +57,15 @@ require('cyberdream').setup({
 vim.cmd.colorscheme 'cyberdream'
 
 require('render-markdown').setup({})
+
+require('octo').setup({})
+require('neogit').setup({
+  integrations = {
+    diffview = true,
+  },
+})
+require('gitsigns').setup({})
+require('diffview').setup({})
 
 require('oil').setup({
   columns = {},
