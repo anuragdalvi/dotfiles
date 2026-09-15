@@ -8,6 +8,10 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Use nvim-tree as the file explorer instead of netrw.
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 vim.pack.add({
   {
     src = 'https://github.com/stevearc/oil.nvim',
@@ -28,6 +32,12 @@ vim.pack.add({
   },
   {
     src = 'https://github.com/stevearc/aerial.nvim',
+  },
+  {
+    src = 'https://github.com/nvim-tree/nvim-tree.lua',
+  },
+  {
+    src = 'https://github.com/nvim-tree/nvim-web-devicons',
   },
   {
     src = 'https://github.com/nvim-treesitter/nvim-treesitter',
@@ -68,6 +78,35 @@ require('ibl').setup(require('indent-rainbowline').make_opts({}))
 
 require('aerial').setup({
   backends = { 'treesitter', 'lsp', 'markdown' },
+  nerd_font = true,
+  layout = {
+    default_direction = 'right',
+  },
+})
+
+require('nvim-tree').setup({
+  disable_netrw = true,
+  hijack_cursor = true,
+  update_focused_file = {
+    enable = true,
+    update_root = true,
+  },
+  view = {
+    side = 'left',
+    width = 32,
+  },
+  renderer = {
+    highlight_git = true,
+    highlight_opened_files = 'name',
+    icons = {
+      show = {
+        file = true,
+        folder = true,
+        folder_arrow = true,
+        git = true,
+      },
+    },
+  },
 })
 
 require('render-markdown').setup({})
@@ -155,6 +194,8 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Focus split right' })
 vim.keymap.set('n', '<leader>e', '<cmd>Oil<CR>', { desc = 'Open parent directory' })
 
 vim.keymap.set('n', '<leader>O', '<cmd>AerialToggle!<CR>', { desc = 'Toggle code outline' })
+
+vim.keymap.set('n', '<leader>n', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle file tree' })
 
 -- <Space>f: fuzzy-find a file under the working directory.
 vim.keymap.set('n', '<leader>f', fzf.files, { desc = 'Find file' })
