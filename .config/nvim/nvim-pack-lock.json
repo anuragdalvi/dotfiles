@@ -45,6 +45,10 @@
       "rev": "5adc81b26232954cd7a90f158aa7844c18fc3165",
       "src": "https://github.com/NeogitOrg/neogit"
     },
+    "nord.nvim": {
+      "rev": "80c1e5321505aeb22b7a9f23eb82f1e193c12470",
+      "src": "https://github.com/shaunsingh/nord.nvim"
+    },
     "nvim-tree.lua": {
       "rev": "8d814495983e8db87d02d2f1da293f25b2fd1bdc",
       "src": "https://github.com/nvim-tree/nvim-tree.lua"
@@ -77,6 +81,10 @@
     "telescope.nvim": {
       "rev": "40aedd8a68c78a656a10a8d62d80c54af59420fb",
       "src": "https://github.com/nvim-telescope/telescope.nvim"
+    },
+    "vscode.nvim": {
+      "rev": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",
+      "src": "https://github.com/Mofiqul/vscode.nvim"
     }
   }
 }

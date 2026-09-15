@@ -2,7 +2,7 @@
 -- See the Workspace notes in the Obsidian vault for the full key reference.
 --
 -- Neovim's built-in package manager installs pinned plugins for browsing,
--- searching, and the Everforest colorscheme.
+-- searching, and the Nord colorscheme.
 
 -- Leader key. <leader> below means <Space>.
 vim.g.mapleader = ' '
@@ -22,7 +22,7 @@ vim.pack.add({
     version = '05e44d38de0a79c11fba5f7bf8138791b1dbdd1e',
   },
   {
-    src = 'https://github.com/sainnhe/everforest',
+    src = 'https://github.com/Mofiqul/vscode.nvim',
   },
   {
     src = 'https://github.com/lukas-reineke/indent-blankline.nvim',
@@ -71,8 +71,13 @@ vim.pack.add({
   },
 }, { confirm = false })
 
-vim.g.everforest_background = 'soft'
-vim.cmd.colorscheme 'everforest'
+require('vscode').setup({
+  style = 'dark',
+  transparent = false,
+  italic_comments = true,
+  terminal_colors = true,
+})
+vim.cmd.colorscheme 'vscode'
 
 require('ibl').setup(require('indent-rainbowline').make_opts({}))
 
