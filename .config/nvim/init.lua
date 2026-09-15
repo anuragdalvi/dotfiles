@@ -2,7 +2,7 @@
 -- See the Workspace notes in the Obsidian vault for the full key reference.
 --
 -- Neovim's built-in package manager installs pinned plugins for browsing,
--- searching, and the Cyberdream colorscheme.
+-- searching, and the Everforest colorscheme.
 
 -- Leader key. <leader> below means <Space>.
 vim.g.mapleader = ' '
@@ -18,7 +18,16 @@ vim.pack.add({
     version = '05e44d38de0a79c11fba5f7bf8138791b1dbdd1e',
   },
   {
-    src = 'https://github.com/scottmckendry/cyberdream.nvim',
+    src = 'https://github.com/sainnhe/everforest',
+  },
+  {
+    src = 'https://github.com/lukas-reineke/indent-blankline.nvim',
+  },
+  {
+    src = 'https://github.com/zyudneko/indent-rainbowline.nvim',
+  },
+  {
+    src = 'https://github.com/stevearc/aerial.nvim',
   },
   {
     src = 'https://github.com/nvim-treesitter/nvim-treesitter',
@@ -52,12 +61,14 @@ vim.pack.add({
   },
 }, { confirm = false })
 
-require('cyberdream').setup({
-  variant = 'default',
-  transparent = false,
-  terminal_colors = true,
+vim.g.everforest_background = 'soft'
+vim.cmd.colorscheme 'everforest'
+
+require('ibl').setup(require('indent-rainbowline').make_opts({}))
+
+require('aerial').setup({
+  backends = { 'treesitter', 'lsp', 'markdown' },
 })
-vim.cmd.colorscheme 'cyberdream'
 
 require('render-markdown').setup({})
 
@@ -142,6 +153,8 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Focus split right' })
 
 -- <Space>e: browse the directory containing the current file with Oil.
 vim.keymap.set('n', '<leader>e', '<cmd>Oil<CR>', { desc = 'Open parent directory' })
+
+vim.keymap.set('n', '<leader>O', '<cmd>AerialToggle!<CR>', { desc = 'Toggle code outline' })
 
 -- <Space>f: fuzzy-find a file under the working directory.
 vim.keymap.set('n', '<leader>f', fzf.files, { desc = 'Find file' })
