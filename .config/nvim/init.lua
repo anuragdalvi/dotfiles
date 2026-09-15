@@ -2,7 +2,7 @@
 -- See the Workspace notes in the Obsidian vault for the full key reference.
 --
 -- Neovim's built-in package manager installs pinned plugins for browsing,
--- searching, and the Nord colorscheme.
+-- searching, and the VS Code colorscheme.
 
 -- Leader key. <leader> below means <Space>.
 vim.g.mapleader = ' '
