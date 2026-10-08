@@ -16,6 +16,7 @@ path=(
 )
 
 export GOPATH="$HOME/go"
+export GOTOOLCHAIN="auto"
 export EDITOR=nvim
 export VISUAL=nvim
 export AWS_PAGER=""
