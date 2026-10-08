@@ -152,6 +152,9 @@ fzf.setup({
     file_icons = false,
     git_icons = false,
   },
+  files = {
+    line_query = true,
+  },
 })
 
 -- [[ Options ]]
