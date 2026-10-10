@@ -174,5 +174,6 @@
     },
     "vs-kubernetes": {
         "vscode-kubernetes.minikube-path-mac": "/Users/anurag/.vs-kubernetes/tools/minikube/darwin-arm64/minikube"
-    }
+    },
+    // "todo-tree.ripgrep.ripgrep": "/opt/homebrew/bin/rg"
 }

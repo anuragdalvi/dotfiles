@@ -14,6 +14,16 @@ return {
       mods = 'CTRL|SHIFT',
       action = wezterm.action.SpawnCommandInNewTab { cwd = wezterm.home_dir },
     },
+    {
+      key = 'd',
+      mods = 'CTRL|SHIFT',
+      action = wezterm.action.SplitHorizontal { cwd = wezterm.home_dir },
+    },
+    {
+      key = 'd',
+      mods = 'CTRL',
+      action = wezterm.action.SplitVertical { cwd = wezterm.home_dir },
+    },
   },
   enable_tab_bar = false,
   scrollback_lines = 10000,
