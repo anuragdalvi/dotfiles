@@ -151,6 +151,52 @@
         "error",
         "warning"
     ],
+    // ─── Better Todo Tree ────────────────────────────────────────────────────
+    "better-todo-tree.general.tags": [
+        "TODO",
+        "FIXME",
+        "BUG",
+        "REVIEW",
+        "HACK",
+        "NOTE"
+    ],
+    "better-todo-tree.general.statusBar": "top three",
+    "better-todo-tree.general.showActivityBarBadge": true,
+    "better-todo-tree.tree.groupedByTag": true,
+    "better-todo-tree.tree.showCountsInTree": true,
+    "better-todo-tree.tree.showScanModeButton": true,
+    "better-todo-tree.highlights.defaultHighlight": {
+        "type": "text",
+        "gutterIcon": true,
+        "rulerLane": "right"
+    },
+    "better-todo-tree.highlights.customHighlight": {
+        "TODO": {
+            "foreground": "#ffffff",
+            "background": "#2563eb",
+            "icon": "check"
+        },
+        "FIXME": {
+            "foreground": "#ffffff",
+            "background": "#ea580c",
+            "icon": "tools"
+        },
+        "BUG": {
+            "foreground": "#ffffff",
+            "background": "#dc2626",
+            "icon": "bug"
+        },
+        "REVIEW": {
+            "foreground": "#ffffff",
+            "background": "#7c3aed",
+            "icon": "eye"
+        },
+        "NOTE": {
+            "foreground": "#111827",
+            "background": "#facc15",
+            "icon": "note"
+        }
+    },
     // ─── Integrated Terminal (productivity / iTerm parity) ────────────────────
     "terminal.integrated.copyOnSelection": true,
     "terminal.integrated.altClickMovesCursor": true,
@@ -174,6 +220,5 @@
     },
     "vs-kubernetes": {
         "vscode-kubernetes.minikube-path-mac": "/Users/anurag/.vs-kubernetes/tools/minikube/darwin-arm64/minikube"
-    },
-    // "todo-tree.ripgrep.ripgrep": "/opt/homebrew/bin/rg"
+    }
 }

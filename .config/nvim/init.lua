@@ -188,6 +188,24 @@ end)
 -- Clear search highlight with Escape, per Usage.md Recovery/Search section.
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Jump to the oldest earlier location in the current jump list.
+vim.keymap.set('n', '<leader><C-o>', function()
+  local jumps, index = unpack(vim.fn.getjumplist())
+  if index > 0 then
+    local ctrl_o = vim.api.nvim_replace_termcodes('<C-o>', true, false, true)
+    vim.api.nvim_feedkeys(tostring(index) .. ctrl_o, 'nx', false)
+  end
+end, { desc = 'Jump to oldest earlier location' })
+
+vim.keymap.set('n', '<leader><C-i>', function()
+  local jumps, index = unpack(vim.fn.getjumplist())
+  local count = #jumps - index - 1
+  if count > 0 then
+    local ctrl_i = vim.api.nvim_replace_termcodes('<C-i>', true, false, true)
+    vim.api.nvim_feedkeys(tostring(count) .. ctrl_i, 'nx', false)
+  end
+end, { desc = 'Jump to newest forward location' })
+
 -- Window/split focus with Ctrl+hjkl. This matches the tmux pane-focus keys
 -- (Ctrl-b h/j/k/l) so the same spatial direction keys work whether the
 -- cursor is inside a tmux pane boundary or a Neovim split boundary.
