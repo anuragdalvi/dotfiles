@@ -189,7 +189,7 @@ end)
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Jump to the oldest earlier location in the current jump list.
-vim.keymap.set('n', '<leader><C-o>', function()
+vim.keymap.set('n', '<C-S-o>', function()
   local jumps, index = unpack(vim.fn.getjumplist())
   if index > 0 then
     local ctrl_o = vim.api.nvim_replace_termcodes('<C-o>', true, false, true)
@@ -197,7 +197,7 @@ vim.keymap.set('n', '<leader><C-o>', function()
   end
 end, { desc = 'Jump to oldest earlier location' })
 
-vim.keymap.set('n', '<leader><C-i>', function()
+vim.keymap.set('n', '<C-S-i>', function()
   local jumps, index = unpack(vim.fn.getjumplist())
   local count = #jumps - index - 1
   if count > 0 then
