@@ -155,6 +155,10 @@ fzf.setup({
   files = {
     line_query = true,
   },
+  lsp = {
+    -- Let workspace queries finish without the default five-second timeout.
+    async_or_timeout = true,
+  },
 })
 
 -- [[ Options ]]
@@ -247,6 +251,10 @@ vim.keymap.set('n', '<leader>c', ':close<CR>', { desc = 'Close split' })
 
 -- <Space>w: save the current file.
 vim.keymap.set('n', '<leader>w', ':write<CR>', { desc = 'Write file' })
+
+-- Function navigation.
+vim.keymap.set('n', ']]', ']m', { desc = 'Next function' })
+vim.keymap.set('n', '[[', '[m', { desc = 'Previous function' })
 
 -- Quickfix navigation, per Usage.md.
 vim.keymap.set('n', ']q', ':cnext<CR>', { desc = 'Next quickfix result' })
