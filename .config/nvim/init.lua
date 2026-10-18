@@ -43,16 +43,10 @@ vim.pack.add({
     src = 'https://github.com/nvim-treesitter/nvim-treesitter',
   },
   {
-    src = 'https://github.com/nvim-mini/mini.nvim',
-  },
-  {
     src = 'https://github.com/MeanderingProgrammer/render-markdown.nvim',
   },
   {
     src = 'https://github.com/nvim-lua/plenary.nvim',
-  },
-  {
-    src = 'https://github.com/nvim-telescope/telescope.nvim',
   },
   {
     src = 'https://github.com/pwntester/octo.nvim',
@@ -114,16 +108,85 @@ require('nvim-tree').setup({
   },
 })
 
+
 require('render-markdown').setup({})
 
-require('octo').setup({})
-require('neogit').setup({
-  integrations = {
-    diffview = true,
-  },
+-- Install these once with :DotfilesParsers (also run by the tool bootstrap).
+-- Missing parsers fall back to syntax highlighting without startup downloads.
+local parser_languages = { 'go', 'gomod', 'gowork', 'gosum', 'python', 'hcl', 'terraform', 'lua', 'vim', 'vimdoc', 'markdown', 'markdown_inline' }
+vim.api.nvim_create_user_command('DotfilesParsers', function(opts)
+  local treesitter = require('nvim-treesitter')
+  local task = treesitter.install(parser_languages)
+  if opts.bang then
+    task:wait(300000)
+    local installed = treesitter.get_installed()
+    for _, language in ipairs(parser_languages) do
+      assert(vim.tbl_contains(installed, language), 'Parser installation failed: ' .. language)
+    end
+  end
+end, { bang = true, desc = 'Install parsers (! waits and verifies installation)' })
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('dotfiles-treesitter', { clear = true }),
+  pattern = { 'go', 'gomod', 'gowork', 'gosum', 'python', 'terraform', 'terraform-vars', 'hcl', 'lua', 'vim', 'help', 'markdown' },
+  callback = function(event)
+    -- Avoid attaching additional parsers to large or generated buffers.
+    if vim.bo[event.buf].buftype ~= '' or vim.api.nvim_buf_line_count(event.buf) > 20000 then return end
+    local name = vim.api.nvim_buf_get_name(event.buf)
+    local stat = name ~= '' and vim.uv.fs_stat(name) or nil
+    if stat and stat.size > 1024 * 1024 then return end
+    pcall(vim.treesitter.start, event.buf)
+  end,
+})
+
+-- Neogit and Diffview initialize themselves when their commands are used.
+-- Octo needs setup to register its commands; defer it until first use.
+local function load_octo()
+  if vim.g.dotfiles_octo_loaded then return end
+  require('octo').setup({ picker = 'fzf-lua' })
+  vim.g.dotfiles_octo_loaded = true
+end
+vim.api.nvim_create_user_command('Octo', function(opts)
+  load_octo()
+  local command = { cmd = 'Octo', args = opts.fargs, mods = opts.smods }
+  if opts.range > 0 then command.range = { opts.line1, opts.line2 } end
+  vim.api.nvim_cmd(command, {})
+end, {
+  nargs = '*', range = true, desc = 'GitHub issues and pull requests',
+  complete = function(_, line)
+    load_octo()
+    return vim.fn.getcompletion(line, 'cmdline')
+  end,
+})
+vim.api.nvim_create_autocmd('BufReadCmd', {
+  pattern = 'octo://*', once = true,
+  callback = function(event)
+    load_octo()
+    vim.api.nvim_exec_autocmds('BufReadCmd', { buffer = event.buf, modeline = false })
+  end,
 })
 require('gitsigns').setup({})
-require('diffview').setup({})
+
+-- Hunk navigation and per-hunk accept/reject, for reviewing agent changes.
+-- <Space>hs stages (accept) and <Space>hr resets (discard) the hunk under the
+-- cursor; visual-mode variants stage/reset the selection.
+local gitsigns_keymap = function(cmd)
+  return function() vim.cmd('Gitsigns ' .. cmd) end
+end
+vim.keymap.set('n', ']h', function() require('gitsigns').nav_hunk('next') end, { desc = 'Next git hunk' })
+vim.keymap.set('n', '[h', function() require('gitsigns').nav_hunk('prev') end, { desc = 'Previous git hunk' })
+vim.keymap.set('n', '<leader>hp', gitsigns_keymap('preview_hunk'), { desc = 'Preview git hunk' })
+vim.keymap.set('n', '<leader>hs', gitsigns_keymap('stage_hunk'), { desc = 'Accept hunk (stage)' })
+vim.keymap.set('n', '<leader>hr', gitsigns_keymap('reset_hunk'), { desc = 'Discard hunk (reset)' })
+local function selected_hunk(action)
+  return function()
+    local first, last = vim.fn.line('v'), vim.fn.line('.')
+    require('gitsigns')[action]({ math.min(first, last), math.max(first, last) })
+  end
+end
+vim.keymap.set('x', '<leader>hs', selected_hunk('stage_hunk'), { desc = 'Accept selection (stage)' })
+vim.keymap.set('x', '<leader>hr', selected_hunk('reset_hunk'), { desc = 'Discard selection (reset)' })
+vim.keymap.set('n', '<leader>hb', gitsigns_keymap('blame_line'), { desc = 'Blame line' })
+
 local conform = require('conform')
 conform.setup({
   formatters_by_ft = {
@@ -139,7 +202,7 @@ require('oil').setup({
   columns = {},
   delete_to_trash = false,
   skip_confirm_for_simple_edits = false,
-  view_options = { show_hidden = false },
+  view_options = { show_hidden = true },
   keymaps = {
     ['<C-h>'] = false,
     ['<C-l>'] = false,
@@ -193,22 +256,28 @@ end)
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Jump to the oldest earlier location in the current jump list.
-vim.keymap.set('n', '<C-S-o>', function()
+local function jump_oldest()
   local jumps, index = unpack(vim.fn.getjumplist())
   if index > 0 then
     local ctrl_o = vim.api.nvim_replace_termcodes('<C-o>', true, false, true)
     vim.api.nvim_feedkeys(tostring(index) .. ctrl_o, 'nx', false)
   end
-end, { desc = 'Jump to oldest earlier location' })
+end
 
-vim.keymap.set('n', '<C-S-i>', function()
+local function jump_newest()
   local jumps, index = unpack(vim.fn.getjumplist())
   local count = #jumps - index - 1
   if count > 0 then
     local ctrl_i = vim.api.nvim_replace_termcodes('<C-i>', true, false, true)
     vim.api.nvim_feedkeys(tostring(count) .. ctrl_i, 'nx', false)
   end
-end, { desc = 'Jump to newest forward location' })
+end
+vim.keymap.set('n', '<C-S-o>', jump_oldest, { desc = 'Jump to oldest earlier location' })
+vim.keymap.set('n', '<C-S-i>', jump_newest, { desc = 'Jump to newest forward location' })
+
+-- Portable alternatives when the terminal cannot distinguish Ctrl+Shift.
+vim.keymap.set('n', '<leader>jo', jump_oldest, { desc = 'Jump to oldest earlier location' })
+vim.keymap.set('n', '<leader>ji', jump_newest, { desc = 'Jump to newest forward location' })
 
 -- Window/split focus with Ctrl+hjkl. This matches the tmux pane-focus keys
 -- (Ctrl-b h/j/k/l) so the same spatial direction keys work whether the
@@ -239,11 +308,12 @@ vim.keymap.set('n', '<leader>b', fzf.buffers, { desc = 'Open buffers' })
 -- <Space>q: select an entry from the quickfix list.
 vim.keymap.set('n', '<leader>q', fzf.quickfix, { desc = 'Quickfix list' })
 
--- <Space>h: search Neovim's installed help.
-vim.keymap.set('n', '<leader>h', fzf.helptags, { desc = 'Search help' })
+-- Keep the h prefix exclusively for Git hunks.
+vim.keymap.set('n', '<leader>?', fzf.helptags, { desc = 'Search help' })
 
 -- <Space>| and <Space>-: split right / split below.
 vim.keymap.set('n', '<leader>|', ':vsplit<CR>', { desc = 'Split right' })
+vim.keymap.set('n', '<leader>v', '<cmd>vsplit<CR>', { desc = 'Split right' })
 vim.keymap.set('n', '<leader>-', ':split<CR>', { desc = 'Split below' })
 
 -- <Space>c: close the current split.
@@ -252,9 +322,9 @@ vim.keymap.set('n', '<leader>c', ':close<CR>', { desc = 'Close split' })
 -- <Space>w: save the current file.
 vim.keymap.set('n', '<leader>w', ':write<CR>', { desc = 'Write file' })
 
--- Function navigation.
-vim.keymap.set('n', ']]', ']m', { desc = 'Next function' })
-vim.keymap.set('n', '[[', '[m', { desc = 'Previous function' })
+-- Structural navigation works across languages, including Python.
+vim.keymap.set('n', ']]', function() require('aerial').next(vim.v.count1) end, { desc = 'Next symbol' })
+vim.keymap.set('n', '[[', function() require('aerial').prev(vim.v.count1) end, { desc = 'Previous symbol' })
 
 -- Quickfix navigation, per Usage.md.
 vim.keymap.set('n', ']q', ':cnext<CR>', { desc = 'Next quickfix result' })
@@ -269,19 +339,21 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Update the tmux window/pane title to the current file, so panes are easy
--- to identify from the tmux status line without opening each one.
+-- Name this pane rather than renaming the shared window from every pane.
+local last_pane_title
 vim.api.nvim_create_autocmd('BufEnter', {
-  desc = 'Set tmux window name to the current file',
+  desc = 'Set tmux pane title to the current file asynchronously',
+  group = vim.api.nvim_create_augroup('tmux-pane-title', { clear = true }),
   callback = function()
-    if vim.fn.exists('$TMUX') == 0 then
+    if not vim.env.TMUX or not vim.env.TMUX_PANE or vim.bo.buftype ~= '' then
       return
     end
     local name = vim.fn.expand '%:t'
-    if name == '' then
-      name = '[No Name]'
+    if name == '' or name == last_pane_title then
+      return
     end
-    vim.fn.system({ 'tmux', 'rename-window', name })
+    last_pane_title = name
+    vim.system({ 'tmux', 'select-pane', '-t', vim.env.TMUX_PANE, '-T', name })
   end,
 })
 
@@ -294,13 +366,97 @@ if vim.fn.executable 'rg' == 1 then
 end
 
 -- [[ Language support ]]
+-- Keep gd useful before LspAttach, instead of silently using Neovim's
+-- text-based local declaration search when no language server is attached.
+vim.keymap.set('n', 'gd', function()
+  local clients = vim.lsp.get_clients({ bufnr = 0, method = 'textDocument/definition' })
+  if #clients == 0 then
+    local filetype = vim.bo.filetype
+    vim.notify(
+      'No definition language server attached for '
+        .. (filetype ~= '' and filetype or 'this file')
+        .. '. Check :checkhealth vim.lsp and :verbose nmap gd.',
+      vim.log.levels.WARN
+    )
+    return
+  end
+  vim.lsp.buf.definition()
+end, { desc = 'Go to definition' })
+
 -- gopls is an external tool (see inventory doc), not a plugin. Neovim's
 -- built-in LSP client talks to it directly.
 if vim.fn.executable 'gopls' == 1 then
+  local environments, pending = {}, {}
+  local origin_client
+  local function inside(filename, dir)
+    return dir and dir ~= '' and vim.startswith(filename, dir .. '/')
+  end
+  local function library_file(filename, env)
+    return inside(filename, env.GOMODCACHE) or inside(filename, env.GOROOT and (env.GOROOT .. '/src'))
+  end
+  -- Track the source of definition jumps; client enumeration order is not
+  -- a reliable way to select a project when several share the module cache.
+  vim.api.nvim_create_autocmd('BufLeave', {
+    group = vim.api.nvim_create_augroup('go-jump-origin', { clear = true }),
+    callback = function(event)
+      local clients = vim.lsp.get_clients({ name = 'gopls', bufnr = event.buf })
+      if #clients == 1 then origin_client = clients[1].id end
+    end,
+  })
+  local function reuse_library(filename, on_dir)
+    local candidates = {}
+    for _, client in ipairs(vim.lsp.get_clients({ name = 'gopls' })) do
+      local root = client.config.root_dir
+      if root and environments[root] and library_file(filename, environments[root]) then
+        candidates[#candidates + 1] = client
+      end
+    end
+    for _, client in ipairs(candidates) do
+      if client.id == origin_client then on_dir(client.config.root_dir); return end
+    end
+    if #candidates == 1 then
+      on_dir(candidates[1].config.root_dir)
+    else
+      vim.notify('Go dependency has no unambiguous project server; open it through a project definition jump.', vim.log.levels.WARN)
+    end
+  end
+  local function go_root(bufnr, on_dir)
+    local filename = vim.uv.fs_realpath(vim.api.nvim_buf_get_name(bufnr)) or vim.api.nvim_buf_get_name(bufnr)
+    for _, env in pairs(environments) do
+      if library_file(filename, env) then reuse_library(filename, on_dir); return end
+    end
+    local root = vim.fs.root(filename, 'go.work') or vim.fs.root(filename, 'go.mod') or vim.fs.root(filename, '.git')
+    if not root then root = vim.fs.dirname(filename) end
+    if not root or root == '' then return end
+    local function resolve(env)
+      if not vim.api.nvim_buf_is_valid(bufnr) then return end
+      local current = vim.api.nvim_buf_get_name(bufnr)
+      if (vim.uv.fs_realpath(current) or current) ~= filename then return end
+      if library_file(filename, env) then reuse_library(filename, on_dir) else on_dir(root) end
+    end
+    -- Reuse environment data only while that project's server is alive.
+    -- A restart re-runs go env, picking up toolchain and environment changes.
+    for _, client in ipairs(vim.lsp.get_clients({ name = 'gopls' })) do
+      if client.config.root_dir == root and environments[root] then resolve(environments[root]); return end
+    end
+    if pending[root] then table.insert(pending[root], resolve); return end
+    pending[root] = { resolve }
+    vim.system({ 'go', 'env', '-json', 'GOMODCACHE', 'GOROOT' }, { text = true, cwd = root }, vim.schedule_wrap(function(result)
+      local ok, env = pcall(vim.json.decode, result.stdout or '')
+      if result.code ~= 0 or not ok or type(env) ~= 'table' then
+        env = {}
+        vim.notify('Could not discover Go environment for ' .. root .. ': ' .. (result.stderr or ''), vim.log.levels.WARN)
+      end
+      environments[root] = env
+      local callbacks = pending[root]
+      pending[root] = nil
+      for _, callback in ipairs(callbacks) do callback(env) end
+    end))
+  end
   vim.lsp.config('gopls', {
     cmd = { 'gopls' },
     filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
-    root_markers = { 'go.work', 'go.mod', '.git' },
+    root_dir = go_root,
   })
   vim.lsp.enable 'gopls'
 end
@@ -311,35 +467,97 @@ if vim.fn.executable 'basedpyright-langserver' == 1 then
   vim.lsp.config('basedpyright', {
     cmd = { 'basedpyright-langserver', '--stdio' },
     filetypes = { 'python' },
-    root_markers = {
+    -- Neovim captures this table before before_init; mutate it in place so
+    -- interpreter selection reaches the client and its configuration request.
+    settings = { python = {} },
+    root_markers = { {
       'pyrightconfig.json',
       'pyproject.toml',
       'setup.py',
       'setup.cfg',
       'requirements.txt',
       'Pipfile',
-      '.git',
-    },
+    }, '.git' },
+    before_init = function(_, config)
+      -- Prefer a project-local environment; never share a global interpreter
+      -- setting across independent Python workspaces.
+      config.settings = config.settings or {}
+      config.settings.python = config.settings.python or {}
+      if config.settings.python.pythonPath then return end
+      local root = config.root_dir
+      if not root then return end
+      for _, dir in ipairs({ '.venv', 'venv' }) do
+        local python = vim.fs.joinpath(root, dir, 'bin', 'python')
+        if vim.fn.executable(python) == 1 then
+          config.settings.python.pythonPath = python
+          return
+        end
+      end
+      -- Otherwise let BasedPyright use project config / the launch environment.
+    end,
   })
   vim.lsp.enable 'basedpyright'
+end
+
+-- terraform-ls supplies navigation, completion, and validation for
+-- Terraform. tflint (also installed) runs from the shell.
+if vim.fn.executable 'terraform-ls' == 1 then
+  vim.lsp.config('terraformls', {
+    cmd = { 'terraform-ls', 'serve' },
+    filetypes = { 'terraform', 'terraform-vars' },
+    -- Prefer the repository so sibling local modules remain discoverable.
+    -- Outside Git, use an initialized module or the nearest .tf directory.
+    root_dir = function(bufnr, on_dir)
+      local filename = vim.api.nvim_buf_get_name(bufnr)
+      on_dir(vim.fs.root(filename, '.git') or vim.fs.root(filename, '.terraform') or vim.fs.dirname(filename))
+    end,
+  })
+  vim.lsp.enable 'terraformls'
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP keymaps, scoped to buffers with an attached LSP client',
   callback = function(event)
-    local map = function(keys, func, desc)
-      vim.keymap.set('n', keys, func, { buffer = event.buf, desc = desc })
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+    if not client then return end
+    local map = function(keys, func, desc, method)
+      if client:supports_method(method, event.buf) then
+        vim.keymap.set('n', keys, func, { buffer = event.buf, desc = desc })
+      end
     end
 
-    map('gd', vim.lsp.buf.definition, 'Go to definition')
-    map('gr', fzf.lsp_references, 'List references')
-    map('K', vim.lsp.buf.hover, 'Hover documentation')
-    map('<leader>o', fzf.lsp_document_symbols, 'Document symbols')
-    map('<leader>S', fzf.lsp_live_workspace_symbols, 'Workspace symbols')
-    map('<leader>r', vim.lsp.buf.rename, 'Rename symbol')
-    map('<leader>a', vim.lsp.buf.code_action, 'Code actions')
-    local client = vim.lsp.get_client_by_id(event.data.client_id)
-    if client and client.name == 'basedpyright' then
+    map('grr', fzf.lsp_references, 'List references', 'textDocument/references')
+    map('K', vim.lsp.buf.hover, 'Hover documentation', 'textDocument/hover')
+    map('<leader>o', fzf.lsp_document_symbols, 'Document symbols', 'textDocument/documentSymbol')
+    map('<leader>S', fzf.lsp_live_workspace_symbols, 'Workspace symbols', 'workspace/symbol')
+    map('<leader>r', vim.lsp.buf.rename, 'Rename symbol', 'textDocument/rename')
+    map('<leader>a', vim.lsp.buf.code_action, 'Code actions', 'textDocument/codeAction')
+
+    -- Go to type definition when the language distinguishes types (Go
+    -- interfaces, Python classes); falls back to plain definition elsewhere.
+    if client:supports_method('textDocument/typeDefinition', event.buf)
+      or client:supports_method('textDocument/definition', event.buf) then
+      vim.keymap.set('n', 'grt', function()
+        if #vim.lsp.get_clients({ bufnr = 0, method = 'textDocument/typeDefinition' }) > 0 then
+          vim.lsp.buf.type_definition()
+        else
+          vim.lsp.buf.definition()
+        end
+      end, { buffer = event.buf, desc = 'Type definition (or definition)' })
+    end
+
+    if client.name == 'basedpyright' then
+      vim.api.nvim_buf_create_user_command(event.buf, 'LspPythonPath', function(opts)
+        local python = vim.fn.fnamemodify(vim.fn.expand(opts.args), ':p')
+        if vim.fn.executable(python) ~= 1 then error('Not an executable Python interpreter: ' .. python) end
+        client.settings.python = client.settings.python or {}
+        client.settings.python.pythonPath = python
+        client:notify('workspace/didChangeConfiguration', { settings = client.settings })
+        vim.notify('Python interpreter: ' .. python)
+      end, { nargs = 1, complete = 'file', desc = 'Set this Python workspace interpreter' })
+    end
+
+    if client:supports_method('textDocument/completion', event.buf) then
       vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
     end
   end,
@@ -350,6 +568,7 @@ vim.keymap.set('n', '<leader>F', function()
 end, { desc = 'Format buffer' })
 
 -- Diagnostic navigation, available even before an LSP attaches.
+vim.keymap.set('n', '<leader>d', vim.diagnostic.open_float, { desc = 'Show diagnostic details' })
 vim.keymap.set('n', ']d', function()
   vim.diagnostic.jump { count = 1 }
 end, { desc = 'Next diagnostic' })
