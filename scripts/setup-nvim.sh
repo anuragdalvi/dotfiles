@@ -1,6 +1,16 @@
 #!/bin/sh
-# Prepare formatting tools and the parsers used by init.lua.
+# Install missing Terraform support and the parsers used by init.lua.
 set -eu
+
+if ! command -v terraform-ls >/dev/null 2>&1; then
+  case $(uname -s) in
+    Darwin) brew install terraform-ls ;;
+    *)
+      printf 'Install terraform-ls using https://github.com/hashicorp/terraform-ls/blob/main/docs/installation.md\n' >&2
+      exit 1
+      ;;
+  esac
+fi
 
 # Version-manager Go launchers may expose go without exposing gofmt.
 if ! command -v gofmt >/dev/null 2>&1; then
@@ -15,7 +25,7 @@ if ! command -v gofmt >/dev/null 2>&1; then
   ln -s "$go_root/bin/gofmt" "$tool_bin/gofmt"
 fi
 
-for tool in nvim rg fzf go gopls basedpyright-langserver terraform ruff tree-sitter cc; do
+for tool in nvim rg fzf go gopls basedpyright-langserver terraform terraform-ls ruff tree-sitter cc; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     printf 'Missing required Neovim tool: %s (see README.md).\n' "$tool" >&2
     exit 1

@@ -1,5 +1,5 @@
 -- Run: nvim --headless -i NONE '+luafile tests/nvim.lua' '+qa!'
--- Uses temporary fixtures and intercepted language-server actions.
+-- Uses temporary fixtures and intercepted actions: never stages/resets real Git files.
 local function eq(actual, expected)
   assert(vim.deep_equal(actual, expected), vim.inspect({ actual = actual, expected = expected }))
 end
@@ -11,18 +11,36 @@ local saved = {
   get_client_by_id = vim.lsp.get_client_by_id, notify = vim.notify,
 }
 local function run()
-  for _, name in ipairs({ 'gopls', 'basedpyright' }) do vim.lsp.enable(name, false) end
+  for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls' }) do vim.lsp.enable(name, false) end
   assert(not package.loaded.octo and not package.loaded.neogit and not package.loaded.diffview)
   eq(vim.fn.maparg(' h', 'n'), '')
   eq(vim.fn.maparg('gr', 'n'), '')
   eq(vim.fn.maparg('gt', 'n'), '')
   assert(vim.fn.maparg(' ?', 'n', false, true).callback)
-  for _, keys in ipairs({ ' hs', ' hr', ' hp', ' hb', ' -', ' |', ' w', ' c' }) do
-    eq(vim.fn.maparg(keys, 'n'), '')
+  eq(vim.g.mapleader, ' ')
+  eq(vim.g.maplocalleader, ' ')
+  eq(vim.o.timeoutlen, 250)
+  assert(vim.o.undofile and vim.o.splitright and vim.o.splitbelow)
+  assert(vim.o.ignorecase and vim.o.smartcase)
+  for _, keys in ipairs({ ' hs', ' hr', ' hp', ' hb', ' -', ' |', ' w', ' c', '<C-h>', '<C-j>', '<C-k>', '<C-l>' }) do
+    local mapping = vim.fn.maparg(keys, 'n', false, true)
+    assert(mapping.desc, 'Missing ergonomic mapping: ' .. keys)
   end
-  eq(vim.fn.maparg(' hs', 'x'), '')
-  eq(vim.fn.maparg(' hr', 'x'), '')
-  assert(vim.lsp.config.terraformls == nil)
+  assert(vim.lsp.config.terraformls, 'Terraform language support is missing')
+
+  local gs = require('gitsigns')
+  for _, action in ipairs({ { 'hs', 'stage_hunk' }, { 'hr', 'reset_hunk' } }) do
+    local original, captured = gs[action[2]], nil
+    gs[action[2]] = function(range) captured = range end
+    for _, selection in ipairs({ 'ggV2j', '3GV2k' }) do
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, { 'one', 'two', 'three', 'four' })
+      vim.cmd.normal({ selection, bang = true })
+      vim.fn.maparg(' ' .. action[1], 'x', false, true).callback()
+      eq(captured, { 1, 3 })
+      vim.cmd.normal({ vim.keycode('<Esc>'), bang = true })
+    end
+    gs[action[2]] = original
+  end
 
   local function file(relative, lines)
     local name = fixture .. '/' .. relative
@@ -107,6 +125,15 @@ local function run()
   local nested = buffer(file('a/nested/main.py'))
   eq(vim.fs.root(nested, python.root_markers), root_a .. '/nested')
 
+  vim.fn.mkdir(root_a .. '/.git', 'p')
+  vim.fn.mkdir(root_a .. '/infra/.terraform', 'p')
+  local tf = buffer(file('a/infra/main.tf'))
+  vim.lsp.config.terraformls.root_dir(tf, function(dir) chosen = dir end)
+  eq(chosen, root_a)
+  local standalone = buffer(file('standalone/main.tf'))
+  vim.lsp.config.terraformls.root_dir(standalone, function(dir) chosen = dir end)
+  eq(chosen, fixture .. '/standalone')
+
   -- Unsupported capabilities must not acquire custom buffer mappings.
   local active = { id = 99, name = 'test', supports_method = function(_, method)
     return method == 'textDocument/definition' or method == 'textDocument/references'
@@ -119,6 +146,12 @@ local function run()
   eq(vim.fn.maparg('grr', 'n', false, true).buffer, 1)
   eq(vim.fn.maparg('gt', 'n'), '')
   eq(vim.fn.maparg(' r', 'n'), '')
+  local definition, original_definition = false, vim.lsp.buf.definition
+  vim.lsp.buf.definition = function() definition = true end
+  vim.fn.maparg('grt', 'n', false, true).callback()
+  vim.lsp.buf.definition = original_definition
+  assert(definition)
+
   vim.system = saved.system
   for ft, text in pairs({ go = 'package main', python = 'x = 1', terraform = 'locals {}' }) do
     vim.cmd.enew({ bang = true })

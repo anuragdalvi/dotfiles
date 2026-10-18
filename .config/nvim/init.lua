@@ -1,5 +1,9 @@
 -- Plugin browsing, search, formatting, and project language support.
 
+-- Keep plugin-local bindings and global shortcuts on the same prefix.
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
 -- Use nvim-tree as the file explorer instead of netrw.
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -157,6 +161,27 @@ vim.api.nvim_create_autocmd('BufReadCmd', {
 })
 require('gitsigns').setup({})
 
+-- Hunk navigation and per-hunk accept/reject, for reviewing agent changes.
+-- <Space>hs stages (accept) and <Space>hr resets (discard) the hunk under the
+-- cursor; visual-mode variants stage/reset the selection.
+local gitsigns_keymap = function(cmd)
+  return function() vim.cmd('Gitsigns ' .. cmd) end
+end
+vim.keymap.set('n', ']h', function() require('gitsigns').nav_hunk('next') end, { desc = 'Next git hunk' })
+vim.keymap.set('n', '[h', function() require('gitsigns').nav_hunk('prev') end, { desc = 'Previous git hunk' })
+vim.keymap.set('n', '<leader>hp', gitsigns_keymap('preview_hunk'), { desc = 'Preview git hunk' })
+vim.keymap.set('n', '<leader>hs', gitsigns_keymap('stage_hunk'), { desc = 'Accept hunk (stage)' })
+vim.keymap.set('n', '<leader>hr', gitsigns_keymap('reset_hunk'), { desc = 'Discard hunk (reset)' })
+local function selected_hunk(action)
+  return function()
+    local first, last = vim.fn.line('v'), vim.fn.line('.')
+    require('gitsigns')[action]({ math.min(first, last), math.max(first, last) })
+  end
+end
+vim.keymap.set('x', '<leader>hs', selected_hunk('stage_hunk'), { desc = 'Accept selection (stage)' })
+vim.keymap.set('x', '<leader>hr', selected_hunk('reset_hunk'), { desc = 'Discard selection (reset)' })
+vim.keymap.set('n', '<leader>hb', gitsigns_keymap('blame_line'), { desc = 'Blame line' })
+
 local conform = require('conform')
 conform.setup({
   formatters_by_ft = {
@@ -172,6 +197,7 @@ require('oil').setup({
   columns = {},
   delete_to_trash = false,
   skip_confirm_for_simple_edits = false,
+  view_options = { show_hidden = true },
   keymaps = {
     ['<C-h>'] = false,
     ['<C-l>'] = false,
@@ -193,7 +219,36 @@ fzf.setup({
   },
 })
 
+-- [[ Options ]]
+vim.opt.number = true
+vim.opt.relativenumber = false
+vim.opt.mouse = 'a'
+vim.opt.showmode = false
+vim.opt.breakindent = true
+vim.opt.undofile = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.signcolumn = 'yes'
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 250
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+vim.opt.list = true
+vim.opt.listchars = { tab = '▏ ', trail = '·', nbsp = '␣' }
+vim.opt.inccommand = 'split'
+vim.opt.cursorline = true
+vim.opt.scrolloff = 8
 vim.opt.path:append '**'
+
+-- Sync clipboard between OS and Neovim after startup.
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+end)
+
+-- [[ Basic Keymaps ]]
+
+-- Clear search highlight with Escape, per Usage.md Recovery/Search section.
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Jump to the oldest earlier location in the current jump list.
 local function jump_oldest()
@@ -219,6 +274,12 @@ vim.keymap.set('n', '<C-S-i>', jump_newest, { desc = 'Jump to newest forward loc
 vim.keymap.set('n', '<Space>jo', jump_oldest, { desc = 'Jump to oldest earlier location' })
 vim.keymap.set('n', '<Space>ji', jump_newest, { desc = 'Jump to newest forward location' })
 
+-- Window/split focus with Ctrl+hjkl, using Vim's spatial direction keys.
+vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Focus split left' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Focus split down' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Focus split up' })
+vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Focus split right' })
+
 -- <Space>e: browse the directory containing the current file with Oil.
 vim.keymap.set('n', '<Space>e', '<cmd>Oil<CR>', { desc = 'Open parent directory' })
 
@@ -241,10 +302,27 @@ vim.keymap.set('n', '<Space>q', fzf.quickfix, { desc = 'Quickfix list' })
 vim.keymap.set('n', '<Space>?', fzf.helptags, { desc = 'Search help' })
 
 vim.keymap.set('n', '<Space>v', '<cmd>vsplit<CR>', { desc = 'Split right' })
+vim.keymap.set('n', '<Space>|', '<cmd>vsplit<CR>', { desc = 'Split right' })
+vim.keymap.set('n', '<Space>-', '<cmd>split<CR>', { desc = 'Split below' })
+vim.keymap.set('n', '<Space>c', '<cmd>close<CR>', { desc = 'Close split' })
+vim.keymap.set('n', '<Space>w', '<cmd>write<CR>', { desc = 'Write file' })
 
 -- Structural navigation works across languages, including Python.
 vim.keymap.set('n', ']]', function() require('aerial').next(vim.v.count1) end, { desc = 'Next symbol' })
 vim.keymap.set('n', '[[', function() require('aerial').prev(vim.v.count1) end, { desc = 'Previous symbol' })
+
+-- Quickfix navigation, per Usage.md.
+vim.keymap.set('n', ']q', ':cnext<CR>', { desc = 'Next quickfix result' })
+vim.keymap.set('n', '[q', ':cprev<CR>', { desc = 'Previous quickfix result' })
+
+-- Highlight on yank, a built-in convenience with no external dependency.
+vim.api.nvim_create_autocmd('TextYankPost', {
+  desc = 'Highlight when yanking (copying) text',
+  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+  callback = function()
+    vim.highlight.on_yank()
+  end,
+})
 
 -- Name this pane rather than renaming the shared window from every pane.
 local last_pane_title
@@ -263,6 +341,14 @@ vim.api.nvim_create_autocmd('BufEnter', {
     vim.system({ 'tmux', 'select-pane', '-t', vim.env.TMUX_PANE, '-T', name })
   end,
 })
+
+-- [[ Search tool ]]
+-- Use ripgrep for :grep when available: fast, respects .gitignore, and
+-- matches the rg usage already documented for the shell.
+if vim.fn.executable 'rg' == 1 then
+  vim.opt.grepprg = 'rg --vimgrep --smart-case --hidden --glob=!.git'
+  vim.opt.grepformat = '%f:%l:%c:%m'
+end
 
 -- [[ Language support ]]
 -- Keep gd useful before LspAttach, instead of silently using Neovim's
@@ -396,6 +482,22 @@ if vim.fn.executable 'basedpyright-langserver' == 1 then
   vim.lsp.enable 'basedpyright'
 end
 
+-- terraform-ls supplies navigation, completion, and validation for
+-- Terraform. tflint (also installed) runs from the shell.
+if vim.fn.executable 'terraform-ls' == 1 then
+  vim.lsp.config('terraformls', {
+    cmd = { 'terraform-ls', 'serve' },
+    filetypes = { 'terraform', 'terraform-vars' },
+    -- Prefer the repository so sibling local modules remain discoverable.
+    -- Outside Git, use an initialized module or the nearest .tf directory.
+    root_dir = function(bufnr, on_dir)
+      local filename = vim.api.nvim_buf_get_name(bufnr)
+      on_dir(vim.fs.root(filename, '.git') or vim.fs.root(filename, '.terraform') or vim.fs.dirname(filename))
+    end,
+  })
+  vim.lsp.enable 'terraformls'
+end
+
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP keymaps, scoped to buffers with an attached LSP client',
   callback = function(event)
@@ -413,6 +515,19 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('<Space>S', fzf.lsp_live_workspace_symbols, 'Workspace symbols', 'workspace/symbol')
     map('<Space>r', vim.lsp.buf.rename, 'Rename symbol', 'textDocument/rename')
     map('<Space>a', vim.lsp.buf.code_action, 'Code actions', 'textDocument/codeAction')
+
+    -- Go to type definition when the language distinguishes types (Go
+    -- interfaces, Python classes); falls back to plain definition elsewhere.
+    if client:supports_method('textDocument/typeDefinition', event.buf)
+      or client:supports_method('textDocument/definition', event.buf) then
+      vim.keymap.set('n', 'grt', function()
+        if #vim.lsp.get_clients({ bufnr = 0, method = 'textDocument/typeDefinition' }) > 0 then
+          vim.lsp.buf.type_definition()
+        else
+          vim.lsp.buf.definition()
+        end
+      end, { buffer = event.buf, desc = 'Type definition (or definition)' })
+    end
 
     if client.name == 'basedpyright' then
       vim.api.nvim_buf_create_user_command(event.buf, 'LspPythonPath', function(opts)
