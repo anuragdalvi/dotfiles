@@ -202,17 +202,7 @@
     "terminal.integrated.altClickMovesCursor": true,
     "terminal.integrated.scrollback": 10000,
     "terminal.integrated.shellIntegration.enabled": true,
-    "terminal.integrated.shellIntegration.history": 1000,
-    // ─── Mise (tool version & env manager) ──────────────────────────────────
-    "mise.enable": true,
-    "mise.configureExtensionsAutomatically": true,
-    "mise.configureExtensionsIncludeGlobalTools": false,
-    "mise.configureExtensionsUseShims": true,
-    "mise.updateEnvAutomatically": true,
-    "mise.enableToolLinks": true,
-    "chat.viewSessions.orientation": "stacked",
-    "docker.extension.enableComposeLanguageServer": false,
-    "gitlens.views.searchAndCompare.files.layout": "tree",
+    "terminal.integrated.shellIntegration.history": 10000,
     "yaml.schemas": {
         "file:///Users/anurag/.vscode/extensions/continue.continue-2.0.0-darwin-arm64/config-yaml-schema.json": [
             ".continue/**/*.yaml"

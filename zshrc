@@ -17,8 +17,6 @@ path=(
 
 export GOPATH="$HOME/go"
 export GOTOOLCHAIN="auto"
-export EDITOR=nvim
-export VISUAL=nvim
 export AWS_PAGER=""
 
 alias python=python3
@@ -74,14 +72,7 @@ fi
 
 [[ -r "$HOME/.config/envman/load.sh" ]] && source "$HOME/.config/envman/load.sh"
 (( $+commands[kubectl] )) && source <(kubectl completion zsh)
-(( $+commands[mise] )) && eval "$(mise activate zsh)"
 (( $+commands[pyenv] )) && eval "$(pyenv init -)"
-(( $+commands[direnv] )) && eval "$(direnv hook zsh)"
-
-# Static completion avoids launching a sandboxed OpenCode during shell startup.
-if [[ -r "$XDG_CONFIG_HOME/zsh/completions/_opencode" ]]; then
-  source "$XDG_CONFIG_HOME/zsh/completions/_opencode"
-fi
 
 # Load machine-specific settings that should not be committed to dotfiles.
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

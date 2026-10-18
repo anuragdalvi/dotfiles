@@ -1,16 +1,6 @@
 #!/bin/sh
-# Install missing Terraform support and the parsers used by init.lua.
+# Prepare formatting tools and the parsers used by init.lua.
 set -eu
-
-if ! command -v terraform-ls >/dev/null 2>&1; then
-  case $(uname -s) in
-    Darwin) brew install terraform-ls ;;
-    *)
-      printf 'Install terraform-ls using https://github.com/hashicorp/terraform-ls/blob/main/docs/installation.md\n' >&2
-      exit 1
-      ;;
-  esac
-fi
 
 # Version-manager Go launchers may expose go without exposing gofmt.
 if ! command -v gofmt >/dev/null 2>&1; then

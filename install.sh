@@ -44,8 +44,7 @@ link_file() {
   printf 'Linked %s\n' "$target"
 }
 
-link_file "$DOTFILES/.config/zsh/.zshrc" "$HOME/.zshrc"
-link_file "$DOTFILES/.config/zsh/completions" "$CONFIG_HOME/zsh/completions"
+link_file "$DOTFILES/zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES/.config/tmux/tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
 link_file "$DOTFILES/.config/nvim/init.lua" "$CONFIG_HOME/nvim/init.lua"
 link_file "$DOTFILES/.config/nvim/nvim-pack-lock.json" "$CONFIG_HOME/nvim/nvim-pack-lock.json"

@@ -1,4 +1,4 @@
-# Herdr and tmux intentionally share the Ctrl-b prefix and common actions.
+# Herdr workspace keybindings.
 onboarding = false
 
 [terminal]
