@@ -9,6 +9,7 @@ fixture = vim.uv.fs_realpath(fixture)
 local saved = {
   system = vim.system, get_clients = vim.lsp.get_clients,
   get_client_by_id = vim.lsp.get_client_by_id, notify = vim.notify,
+  completion_enable = vim.lsp.completion.enable,
 }
 local function run()
   for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls' }) do vim.lsp.enable(name, false) end
@@ -152,6 +153,32 @@ local function run()
   vim.lsp.buf.definition = original_definition
   assert(definition)
 
+  -- Completion must trigger on identifiers, preserve server punctuation, and
+  -- tolerate servers with no advertised triggers or multiple attached buffers.
+  local enabled = {}
+  vim.lsp.completion.enable = function(enable, id, buf, opts)
+    enabled[#enabled + 1] = { enable, id, buf, opts.autotrigger }
+  end
+  for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls' }) do
+    active.name = name
+    active.settings = { python = {} }
+    active.supports_method = function(_, method) return method == 'textDocument/completion' end
+    active.server_capabilities = { completionProvider = name == 'basedpyright' and {} or { triggerCharacters = { '.', ':' } } }
+    for _ = 1, 2 do
+      vim.api.nvim_exec_autocmds('LspAttach', { buffer = nested, data = { client_id = active.id } })
+    end
+    local triggers = active.server_capabilities.completionProvider.triggerCharacters
+    for char in ('aAzZ09_'):gmatch('.') do assert(vim.tbl_contains(triggers, char)) end
+    if name ~= 'basedpyright' then
+      assert(vim.tbl_contains(triggers, '.') and vim.tbl_contains(triggers, ':'))
+    end
+    eq(#triggers, #vim.fn.uniq(vim.fn.sort(vim.deepcopy(triggers))))
+    eq(enabled[#enabled], { true, active.id, nested, true })
+    eq(vim.fn.maparg('<C-Space>', 'i', false, true).callback, vim.lsp.completion.get)
+  end
+  eq(vim.opt.completeopt:get(), { 'menu', 'menuone', 'noselect', 'popup' })
+  vim.lsp.completion.enable = saved.completion_enable
+
   vim.system = saved.system
   for ft, text in pairs({ go = 'package main', python = 'x = 1', terraform = 'locals {}' }) do
     vim.cmd.enew({ bang = true })
@@ -162,7 +189,8 @@ local function run()
 end
 local ok, err = xpcall(run, debug.traceback)
 for name, value in pairs(saved) do
-  if name == 'get_clients' or name == 'get_client_by_id' then vim.lsp[name] = value else vim[name] = value end
+  if name == 'completion_enable' then vim.lsp.completion.enable = value
+  elseif name == 'get_clients' or name == 'get_client_by_id' then vim.lsp[name] = value else vim[name] = value end
 end
 vim.fn.delete(fixture, 'rf')
 if not ok then

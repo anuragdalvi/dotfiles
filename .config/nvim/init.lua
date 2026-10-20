@@ -59,7 +59,12 @@ vim.pack.add({
   {
     src = 'https://github.com/stevearc/conform.nvim',
   },
+  {
+    src = 'https://github.com/windwp/nvim-autopairs',
+  },
 }, { confirm = false })
+
+require('nvim-autopairs').setup({})
 
 require('vscode').setup({
   style = 'dark',
@@ -239,6 +244,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 vim.opt.scrolloff = 8
 vim.opt.path:append '**'
+vim.opt.completeopt = { 'menu', 'menuone', 'noselect', 'popup' }
 
 -- Sync clipboard between OS and Neovim after startup.
 vim.schedule(function()
@@ -541,7 +547,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     if client:supports_method('textDocument/completion', event.buf) then
+      -- Native autotrigger otherwise only fires on server punctuation (e.g. '.').
+      -- Keep those triggers and also offer suggestions while typing names.
+      local provider = client.server_capabilities.completionProvider
+      local triggers = provider.triggerCharacters or {}
+      for char in ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'):gmatch('.') do
+        if not vim.tbl_contains(triggers, char) then triggers[#triggers + 1] = char end
+      end
+      provider.triggerCharacters = triggers
       vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
+      vim.keymap.set('i', '<C-Space>', vim.lsp.completion.get, { buffer = event.buf, desc = 'LSP completion' })
     end
   end,
 })

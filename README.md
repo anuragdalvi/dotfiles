@@ -70,6 +70,13 @@ Frequent Neovim keys:
 | `Space o / S / O` | Document symbols / workspace symbols / outline |
 | `[d / ]d / Space d` | Previous diagnostic / next diagnostic / diagnostic details |
 | `Space jo / ji` | Oldest earlier / newest forward jump |
+| `Ctrl-Space` (insert mode) | Request LSP suggestions |
+| `Ctrl-n / Ctrl-p / Ctrl-y` (completion menu) | Next / previous / accept suggestion |
+
+LSP suggestions appear automatically while typing names and server trigger
+characters such as `.`. Suggestions stay unselected until you choose one.
+Braces, parentheses, brackets, and quotes close automatically. Typing the
+closing character moves past it; Backspace inside an empty pair removes both.
 
 Python selects the nearest project marker, prefers that project's `.venv`
 or `venv` interpreter, and otherwise uses server discovery. Use

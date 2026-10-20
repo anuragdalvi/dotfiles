@@ -1,6 +1,7 @@
 local wezterm = require 'wezterm'
 
 return {
+  font_size = 12.0,
   default_prog = { '/bin/zsh', '-l' },
   default_cwd = wezterm.home_dir,
   keys = {
