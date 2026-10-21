@@ -20,7 +20,7 @@ local function run()
   assert(vim.fn.maparg(' ?', 'n', false, true).callback)
   eq(vim.g.mapleader, ' ')
   eq(vim.g.maplocalleader, ' ')
-  eq(vim.o.timeoutlen, 250)
+  eq(vim.o.timeoutlen, 1000)
   assert(vim.o.undofile and vim.o.splitright and vim.o.splitbelow)
   assert(vim.o.ignorecase and vim.o.smartcase)
   for _, keys in ipairs({ ' hs', ' hr', ' hp', ' hb', ' -', ' |', ' w', ' c', '<C-h>', '<C-j>', '<C-k>', '<C-l>' }) do
