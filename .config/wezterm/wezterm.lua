@@ -1,7 +1,7 @@
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
-config.font_size = 20.0
+config.font_size = 15.0
 config.font = wezterm.font("Firacode Nerd Font")
 config.default_prog = { '/bin/zsh', '-l' }
 config.default_cwd = wezterm.home_dir
