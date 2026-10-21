@@ -79,6 +79,20 @@ characters such as `.`. Suggestions stay unselected until you choose one.
 Braces, parentheses, brackets, and quotes close automatically. Typing the
 closing character moves past it; Backspace inside an empty pair removes both.
 
+Saving with `:w` or `Space w` formats Go with `gofmt`, Terraform (including
+`.tfvars`) with `terraform fmt`, and Python with `ruff format`. Formatting
+finishes before the file is written. Use `Space F` to format manually and
+`:ConformInfo` to check formatter availability or errors.
+With gopls attached, saving Go also adds missing imports and removes unused
+imports before formatting. Accepting an unimported package completion with
+`Ctrl-y` can add its import immediately; typing a reference manually is
+handled on save.
+Python enables BasedPyright auto-import completions as well. Saving adds
+unambiguous import fixes for reported undefined names, then Ruff sorts
+imports, removes unused ones, and formats the file. Missing-import fixes
+require BasedPyright diagnostics to be ready. For names with multiple import
+choices, use `Space a` on the name or accept a completion with `Ctrl-y`.
+
 Python selects the nearest project marker, prefers that project's `.venv`
 or `venv` interpreter, and otherwise uses server discovery. Use
 `:LspPythonPath /path/to/python` to override an attached workspace. Keep
@@ -102,6 +116,7 @@ Validate configuration changes with:
 
 ```sh
 nvim --headless -i NONE '+luafile tests/nvim.lua' '+qa!'
+nvim --headless -i NONE '+luafile tests/python-imports.lua' '+qa!'
 ```
 
 Install the remaining Ubuntu tools through apt, Nix, or their official
