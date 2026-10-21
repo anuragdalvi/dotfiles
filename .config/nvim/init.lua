@@ -299,6 +299,22 @@ vim.keymap.set('n', '<Space>f', fzf.files, { desc = 'Find file' })
 -- <Space>s: live project-wide search with ripgrep.
 vim.keymap.set('n', '<Space>s', fzf.live_grep, { desc = 'Project search' })
 
+-- Choose a folder under the working directory, then search its contents.
+vim.keymap.set('n', '<Space>sd', function()
+  local cwd = vim.fn.getcwd()
+  fzf.fzf_exec('find . -type d -name .git -prune -o -type d -print', {
+    cwd = cwd,
+    prompt = 'Search folder> ',
+    fzf_opts = { ['--no-multi'] = true },
+    actions = {
+      ['default'] = function(selected)
+        if not selected or not selected[1] then return end
+        fzf.live_grep({ cwd = vim.fs.normalize(vim.fs.joinpath(cwd, selected[1])) })
+      end,
+    },
+  })
+end, { desc = 'Choose folder to search' })
+
 -- <Space>b: switch between open buffers.
 vim.keymap.set('n', '<Space>b', fzf.buffers, { desc = 'Open buffers' })
 

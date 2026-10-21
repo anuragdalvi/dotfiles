@@ -58,6 +58,7 @@ Frequent Neovim keys:
 | Key | Action |
 | --- | --- |
 | `Space f / s / b` | Files / project search / buffers |
+| `Space s d` | Choose a folder, then search its contents |
 | `Space e / n` | Oil directory editor / project tree |
 | `Space ?` | Help search |
 | `Space v / -` | Split right / below (`Space \|` also splits right) |
