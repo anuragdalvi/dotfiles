@@ -288,6 +288,14 @@ require('oil').setup({
 
 local fzf = require 'fzf-lua'
 fzf.setup({
+  fzf_opts = { ['--cycle'] = true },
+  keymap = {
+    fzf = {
+      true, -- Keep the other default search bindings.
+      ['up'] = 'up',
+      ['down'] = 'down',
+    },
+  },
   defaults = {
     file_icons = false,
     git_icons = false,

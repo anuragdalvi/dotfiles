@@ -74,6 +74,9 @@ Frequent Neovim keys:
 | `Ctrl-Space` (insert mode) | Request LSP suggestions |
 | `Ctrl-n / Ctrl-p / Ctrl-y` (completion menu) | Next / previous / accept suggestion |
 
+In search pickers, Up and Down move through results and wrap between the
+first and last result, including the folder picker opened by `Space s d`.
+
 LSP suggestions appear automatically while typing names and server trigger
 characters such as `.`. Suggestions stay unselected until you choose one.
 Braces, parentheses, brackets, and quotes close automatically. Typing the
