@@ -80,6 +80,7 @@ Frequent Neovim keys:
 | `Space o / S / O` | Document symbols / workspace symbols / outline |
 | `[d / ]d / Space d` | Previous diagnostic / next diagnostic / diagnostic details |
 | `Space jo / ji` | Oldest earlier / newest forward jump |
+| `Space y p / y P / y n` | Copy relative path / absolute path / filename (also in Oil) |
 | `Space p r / p c` | Show project root / set tab directory to root |
 | `Ctrl-\` | Toggle a persistent 12-line project terminal |
 | `Space x x / x b / x q` | Workspace diagnostics / buffer diagnostics / quickfix panel |
@@ -101,6 +102,9 @@ Press Space and pause to see available shortcuts in WhichKey. `Space s` and
 picker is `Space s q`; a complete action no longer overlaps those prefixes.
 Blink provides completion across language servers, paths, buffer words,
 friendly-snippets, and Dadbod, with no automatic suggestion selection.
+
+Path-copy shortcuts use the current file, or the entry under the cursor in
+Oil, and copy to the system clipboard. Relative paths are relative to `:pwd`.
 
 In search pickers, Up and Down move through results and wrap between the
 first and last result, including the folder picker opened by `Space s d`.

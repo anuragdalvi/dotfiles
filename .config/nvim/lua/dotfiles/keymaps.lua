@@ -5,6 +5,28 @@ local project = require 'dotfiles.project'
 -- Clear search highlight with Escape.
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+local function copy_file_path(kind)
+  local path
+  if vim.bo.filetype == 'oil' then
+    local oil = require('oil')
+    local directory, entry = oil.get_current_dir(), oil.get_cursor_entry()
+    if directory and entry then path = vim.fs.joinpath(directory, entry.name) end
+  elseif vim.bo.buftype == '' then
+    path = vim.api.nvim_buf_get_name(0)
+  end
+  if not path or path == '' then
+    vim.notify('Select a local file in Oil or open a named file first.', vim.log.levels.WARN)
+    return
+  end
+  if kind == 'relative' then path = vim.fn.fnamemodify(path, ':.') end
+  if kind == 'name' then path = vim.fs.basename(path) end
+  vim.fn.setreg('+', path)
+  vim.notify('Copied: ' .. path)
+end
+vim.keymap.set('n', '<Space>yp', function() copy_file_path('relative') end, { desc = 'Copy relative file path' })
+vim.keymap.set('n', '<Space>yP', function() copy_file_path('absolute') end, { desc = 'Copy absolute file path' })
+vim.keymap.set('n', '<Space>yn', function() copy_file_path('name') end, { desc = 'Copy file name' })
+
 -- Jump to the oldest earlier location in the current jump list.
 local function jump_oldest()
   local jumps, index = unpack(vim.fn.getjumplist())
