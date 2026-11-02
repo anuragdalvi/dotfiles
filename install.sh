@@ -47,6 +47,7 @@ link_file() {
 link_file "$DOTFILES/zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES/.config/tmux/tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
 link_file "$DOTFILES/.config/nvim/init.lua" "$CONFIG_HOME/nvim/init.lua"
+link_file "$DOTFILES/.config/nvim/lua/dotfiles" "$CONFIG_HOME/nvim/lua/dotfiles"
 link_file "$DOTFILES/.config/nvim/nvim-pack-lock.json" "$CONFIG_HOME/nvim/nvim-pack-lock.json"
 link_file "$DOTFILES/.config/herdr/config.toml" "$CONFIG_HOME/herdr/config.toml"
 link_file "$DOTFILES/.config/opencode/opencode.jsonc" "$CONFIG_HOME/opencode/opencode.jsonc"

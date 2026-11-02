@@ -1,0 +1,142 @@
+local fzf = require 'fzf-lua'
+local project = require 'dotfiles.project'
+-- [[ Basic Keymaps ]]
+
+-- Clear search highlight with Escape.
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+-- Jump to the oldest earlier location in the current jump list.
+local function jump_oldest()
+  local jumps, index = unpack(vim.fn.getjumplist())
+  if index > 0 then
+    local ctrl_o = vim.api.nvim_replace_termcodes('<C-o>', true, false, true)
+    vim.api.nvim_feedkeys(tostring(index) .. ctrl_o, 'nx', false)
+  end
+end
+
+local function jump_newest()
+  local jumps, index = unpack(vim.fn.getjumplist())
+  local count = #jumps - index - 1
+  if count > 0 then
+    local ctrl_i = vim.api.nvim_replace_termcodes('<C-i>', true, false, true)
+    vim.api.nvim_feedkeys(tostring(count) .. ctrl_i, 'nx', false)
+  end
+end
+vim.keymap.set('n', '<C-S-o>', jump_oldest, { desc = 'Jump to oldest earlier location' })
+vim.keymap.set('n', '<C-S-i>', jump_newest, { desc = 'Jump to newest forward location' })
+
+-- Portable alternatives when the terminal cannot distinguish Ctrl+Shift.
+vim.keymap.set('n', '<Space>jo', jump_oldest, { desc = 'Jump to oldest earlier location' })
+vim.keymap.set('n', '<Space>ji', jump_newest, { desc = 'Jump to newest forward location' })
+
+-- Window/split focus with Ctrl+hjkl, using Vim's spatial direction keys.
+vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Focus split left' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Focus split down' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Focus split up' })
+vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Focus split right' })
+
+-- <Space>e: browse the directory containing the current file with Oil.
+vim.keymap.set('n', '<Space>e', '<cmd>Oil<CR>', { desc = 'Open parent directory' })
+
+vim.keymap.set('n', '<Space>O', '<cmd>AerialToggle!<CR>', { desc = 'Toggle code outline' })
+
+vim.keymap.set('n', '<Space>n', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle file tree' })
+
+-- <Space>f: fuzzy-find a file under the working directory.
+vim.keymap.set('n', '<Space>f', function() fzf.files({ cwd = project.root() }) end, { desc = 'Find file' })
+
+-- <Space>sg: search the detected project with ripgrep.
+vim.keymap.set('n', '<Space>sg', function() fzf.live_grep({ cwd = project.root() }) end, { desc = 'Project search' })
+
+-- Choose a folder under the working directory, then search its contents.
+vim.keymap.set('n', '<Space>sd', function()
+  local cwd = project.root()
+  if vim.fn.executable('fd') ~= 1 then
+    vim.notify('Folder search needs fd. Run scripts/setup-nvim.sh.', vim.log.levels.WARN)
+    return
+  end
+  fzf.fzf_exec('fd --type d --hidden --exclude .git --exclude .venv --exclude venv --exclude node_modules --exclude .terraform --exclude __pycache__ --exclude .cache', {
+    cwd = cwd,
+    prompt = 'Search folder> ',
+    fzf_opts = { ['--no-multi'] = true },
+    actions = {
+      ['default'] = function(selected)
+        if not selected or not selected[1] then return end
+        fzf.live_grep({ cwd = vim.fs.normalize(vim.fs.joinpath(cwd, selected[1])) })
+      end,
+    },
+  })
+end, { desc = 'Choose folder to search' })
+
+vim.keymap.set('n', '<Space>pr', '<cmd>ProjectRoot<CR>', { desc = 'Show project root' })
+vim.keymap.set('n', '<Space>pc', function() vim.cmd.tcd(project.root()) end, { desc = 'Use project root as tab directory' })
+vim.keymap.set({ 'n', 't' }, '<C-\\>', function()
+  if vim.fn.mode() == 't' then
+    vim.cmd.stopinsert()
+    vim.schedule(project.terminal)
+  else project.terminal() end
+end, { desc = 'Toggle project terminal' })
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', { desc = 'Focus split left' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', { desc = 'Focus split down' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', { desc = 'Focus split up' })
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Focus split right' })
+
+-- <Space>b: switch between open buffers.
+vim.keymap.set('n', '<Space>b', fzf.buffers, { desc = 'Open buffers' })
+
+-- <Space>sq: select an entry from the quickfix list.
+vim.keymap.set('n', '<Space>sq', fzf.quickfix, { desc = 'Quickfix picker' })
+
+vim.keymap.set('n', '<Space>?', fzf.helptags, { desc = 'Search help' })
+
+vim.keymap.set('n', '<Space>v', '<cmd>vsplit<CR>', { desc = 'Split right' })
+vim.keymap.set('n', '<Space>|', '<cmd>vsplit<CR>', { desc = 'Split right' })
+vim.keymap.set('n', '<Space>-', '<cmd>split<CR>', { desc = 'Split below' })
+vim.keymap.set('n', '<Space>c', '<cmd>close<CR>', { desc = 'Close split' })
+vim.keymap.set('n', '<Space>w', '<cmd>write<CR>', { desc = 'Write file' })
+
+-- Structural navigation works across languages, including Python.
+vim.keymap.set('n', ']]', function() require('aerial').next(vim.v.count1) end, { desc = 'Next symbol' })
+vim.keymap.set('n', '[[', function() require('aerial').prev(vim.v.count1) end, { desc = 'Previous symbol' })
+
+-- Quickfix navigation.
+vim.keymap.set('n', ']q', ':cnext<CR>', { desc = 'Next quickfix result' })
+vim.keymap.set('n', '[q', ':cprev<CR>', { desc = 'Previous quickfix result' })
+
+-- Highlight on yank, a built-in convenience with no external dependency.
+vim.api.nvim_create_autocmd('TextYankPost', {
+  desc = 'Highlight when yanking (copying) text',
+  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+  callback = function()
+    vim.highlight.on_yank()
+  end,
+})
+
+-- Name this pane rather than renaming the shared window from every pane.
+local last_pane_title
+vim.api.nvim_create_autocmd('BufEnter', {
+  desc = 'Set tmux pane title to the current file asynchronously',
+  group = vim.api.nvim_create_augroup('tmux-pane-title', { clear = true }),
+  callback = function()
+    if not vim.env.TMUX or not vim.env.TMUX_PANE or vim.bo.buftype ~= '' then
+      return
+    end
+    local name = vim.fn.expand '%:t'
+    if name == '' or name == last_pane_title then
+      return
+    end
+    last_pane_title = name
+    vim.system({ 'tmux', 'select-pane', '-t', vim.env.TMUX_PANE, '-T', name })
+  end,
+})
+
+-- [[ Search tool ]]
+-- Use ripgrep for :grep when available: fast, respects .gitignore, and
+-- matches the rg usage already documented for the shell.
+if vim.fn.executable 'rg' == 1 then
+  vim.opt.grepprg = 'rg --vimgrep --smart-case --hidden --glob=!.git'
+  vim.opt.grepformat = '%f:%l:%c:%m'
+end
+
+vim.keymap.set('n', '<Space>F', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, { desc = 'Format buffer' })
+vim.keymap.set('n', '<Space>d', vim.diagnostic.open_float, { desc = 'Show diagnostic details' })

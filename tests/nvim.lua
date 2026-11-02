@@ -9,10 +9,9 @@ fixture = vim.uv.fs_realpath(fixture)
 local saved = {
   system = vim.system, get_clients = vim.lsp.get_clients,
   get_client_by_id = vim.lsp.get_client_by_id, notify = vim.notify,
-  completion_enable = vim.lsp.completion.enable,
 }
 local function run()
-  for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls' }) do vim.lsp.enable(name, false) end
+  for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls', 'ruff', 'tflint' }) do vim.lsp.enable(name, false) end
   assert(not package.loaded.octo and not package.loaded.neogit and not package.loaded.diffview)
   eq(vim.fn.maparg(' h', 'n'), '')
   eq(vim.fn.maparg('gr', 'n'), '')
@@ -129,9 +128,11 @@ local function run()
   vim.fn.mkdir(root_a .. '/.git', 'p')
   vim.fn.mkdir(root_a .. '/infra/.terraform', 'p')
   local tf = buffer(file('a/infra/main.tf'))
+  vim.bo[tf].filetype = 'terraform'
   vim.lsp.config.terraformls.root_dir(tf, function(dir) chosen = dir end)
-  eq(chosen, root_a)
+  eq(chosen, root_a .. '/infra')
   local standalone = buffer(file('standalone/main.tf'))
+  vim.bo[standalone].filetype = 'terraform'
   vim.lsp.config.terraformls.root_dir(standalone, function(dir) chosen = dir end)
   eq(chosen, fixture .. '/standalone')
 
@@ -153,31 +154,21 @@ local function run()
   vim.lsp.buf.definition = original_definition
   assert(definition)
 
-  -- Completion must trigger on identifiers, preserve server punctuation, and
-  -- tolerate servers with no advertised triggers or multiple attached buffers.
-  local enabled = {}
-  vim.lsp.completion.enable = function(enable, id, buf, opts)
-    enabled[#enabled + 1] = { enable, id, buf, opts.autotrigger }
-  end
-  for _, name in ipairs({ 'gopls', 'basedpyright', 'terraformls' }) do
-    active.name = name
-    active.settings = { python = {} }
-    active.supports_method = function(_, method) return method == 'textDocument/completion' end
-    active.server_capabilities = { completionProvider = name == 'basedpyright' and {} or { triggerCharacters = { '.', ':' } } }
-    for _ = 1, 2 do
-      vim.api.nvim_exec_autocmds('LspAttach', { buffer = nested, data = { client_id = active.id } })
-    end
-    local triggers = active.server_capabilities.completionProvider.triggerCharacters
-    for char in ('aAzZ09_'):gmatch('.') do assert(vim.tbl_contains(triggers, char)) end
-    if name ~= 'basedpyright' then
-      assert(vim.tbl_contains(triggers, '.') and vim.tbl_contains(triggers, ':'))
-    end
-    eq(#triggers, #vim.fn.uniq(vim.fn.sort(vim.deepcopy(triggers))))
-    eq(enabled[#enabled], { true, active.id, nested, true })
-    eq(vim.fn.maparg('<C-Space>', 'i', false, true).callback, vim.lsp.completion.get)
+  -- Blink owns completion for LSP, snippets, paths, and database buffers.
+  assert(vim.lsp.config['*'].capabilities.textDocument.completion.completionItem.snippetSupport)
+  local completion = require('blink.cmp.config')
+  local preselect = completion.completion.list.selection.preselect
+  if type(preselect) == 'function' then preselect = preselect() end
+  assert(not preselect)
+  eq(completion.sources.per_filetype.sql, { 'dadbod', 'snippets', 'buffer' })
+  assert(vim.fn.maparg(' sg', 'n', false, true).callback)
+  assert(vim.fn.maparg(' sd', 'n', false, true).callback)
+  eq(vim.fn.maparg(' s', 'n'), '') -- no prefix timeout before project search
+  eq(vim.fn.maparg(' q', 'n'), '') -- sessions have their own prefix
+  for _, keys in ipairs({ ' xx', ' tt', ' tf', ' zb', ' qr', ' uf', ' ui' }) do
+    assert(vim.fn.maparg(keys, 'n', false, true).desc, 'Missing workflow: ' .. keys)
   end
   eq(vim.opt.completeopt:get(), { 'menu', 'menuone', 'noselect', 'popup' })
-  vim.lsp.completion.enable = saved.completion_enable
 
   vim.system = saved.system
   for ft, text in pairs({ go = 'package main', python = 'x = 1', terraform = 'locals {}' }) do
@@ -189,8 +180,7 @@ local function run()
 end
 local ok, err = xpcall(run, debug.traceback)
 for name, value in pairs(saved) do
-  if name == 'completion_enable' then vim.lsp.completion.enable = value
-  elseif name == 'get_clients' or name == 'get_client_by_id' then vim.lsp[name] = value else vim[name] = value end
+  if name == 'get_clients' or name == 'get_client_by_id' then vim.lsp[name] = value else vim[name] = value end
 end
 vim.fn.delete(fixture, 'rf')
 if not ok then

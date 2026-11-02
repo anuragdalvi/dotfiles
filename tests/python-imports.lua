@@ -1,6 +1,11 @@
 -- Run: nvim --headless -i NONE '+luafile tests/python-imports.lua' '+qa!'
 -- Requires BasedPyright and Ruff; all edits use a temporary project.
 local root = vim.fn.tempname()
+-- Check import correctness independently of indexing speed on a busy machine.
+-- The production save budget is checked separately in tests/projects.lua.
+local formatting = require('dotfiles.format')
+local saved_budget = formatting.budget_ms
+formatting.budget_ms = 5000
 vim.fn.mkdir(root, 'p')
 local function file(name, lines) vim.fn.writefile(lines, root .. '/' .. name) end
 file('pyproject.toml', { '[project]', 'name = "imports-check"', 'version = "0.0.1"' })
@@ -61,6 +66,7 @@ local function run()
   print('Python import checks passed: stdlib, project, ambiguity, shared imports, cleanup, and formatting')
 end
 local ok, err = xpcall(run, debug.traceback)
+formatting.budget_ms = saved_budget
 for _, client in ipairs(vim.lsp.get_clients()) do client:stop(true) end
 vim.fn.delete(root, 'rf')
 if not ok then io.stderr:write(err .. '\n'); vim.cmd.cquit() end
