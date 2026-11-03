@@ -38,7 +38,7 @@ local ok, err = xpcall(function()
   for _, folder in ipairs({ '.venv', 'node_modules', '.terraform', 'folder with spaces/nested' }) do
     file(folder .. '/file.txt')
   end
-  vim.cmd.cd('/private/tmp') -- Search must not depend on launch cwd.
+  vim.cmd.cd(vim.fs.dirname(root)) -- Search must not depend on launch cwd.
   local command, options, selected
   fzf.fzf_exec = function(cmd, opts) command, options = cmd, opts end
   fzf.live_grep = function(opts) selected = opts.cwd end

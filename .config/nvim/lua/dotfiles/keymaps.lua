@@ -73,11 +73,12 @@ vim.keymap.set('n', '<Space>sg', function() fzf.live_grep({ cwd = project.root()
 -- Choose a folder under the working directory, then search its contents.
 vim.keymap.set('n', '<Space>sd', function()
   local cwd = project.root()
-  if vim.fn.executable('fd') ~= 1 then
-    vim.notify('Folder search needs fd. Run scripts/setup-nvim.sh.', vim.log.levels.WARN)
+  local fd = require('dotfiles.tools').fd()
+  if not fd then
+    vim.notify('Folder search needs fd or fdfind. Run scripts/setup-nvim.sh.', vim.log.levels.WARN)
     return
   end
-  fzf.fzf_exec('fd --type d --hidden --exclude .git --exclude .venv --exclude venv --exclude node_modules --exclude .terraform --exclude __pycache__ --exclude .cache', {
+  fzf.fzf_exec(fd .. ' --type d --hidden --exclude .git --exclude .venv --exclude venv --exclude node_modules --exclude .terraform --exclude __pycache__ --exclude .cache', {
     cwd = cwd,
     prompt = 'Search folder> ',
     fzf_opts = { ['--no-multi'] = true },

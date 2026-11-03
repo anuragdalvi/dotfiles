@@ -19,6 +19,12 @@ export GOPATH="$HOME/go"
 export GOTOOLCHAIN="auto"
 export AWS_PAGER=""
 
+# Homebrew completions live outside Zsh's default system completion paths.
+if (( $+commands[brew] )); then
+  _dotfiles_brew_prefix=$(brew --prefix)
+  fpath=("$_dotfiles_brew_prefix/share/zsh/site-functions" $fpath)
+fi
+
 alias python=python3
 alias k=kubectl
 
@@ -56,21 +62,31 @@ bindkey '^[f' forward-word
 bindkey '^[^?' backward-kill-word
 bindkey '^U' backward-kill-line
 
-if [[ -r "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-  source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi
+for _dotfiles_suggestions in \
+  "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+  "${_dotfiles_brew_prefix:-/nonexistent}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+  if [[ -r "$_dotfiles_suggestions" ]]; then
+    source "$_dotfiles_suggestions"
+    break
+  fi
+done
 
 if [[ -o interactive && -t 0 ]]; then
   if (( $+commands[fzf] )) && fzf --zsh >/dev/null 2>&1; then
     source <(fzf --zsh)
   elif [[ -r /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
     source /usr/share/doc/fzf/examples/key-bindings.zsh
+  elif [[ -r "${_dotfiles_brew_prefix:-/nonexistent}/opt/fzf/shell/key-bindings.zsh" ]]; then
+    source "$_dotfiles_brew_prefix/opt/fzf/shell/key-bindings.zsh"
   elif [[ -r "$HOME/.fzf.zsh" ]]; then
     source "$HOME/.fzf.zsh"
   fi
 fi
 
-[[ -r "$HOME/.config/envman/load.sh" ]] && source "$HOME/.config/envman/load.sh"
+unset _dotfiles_brew_prefix _dotfiles_suggestions
+
+[[ -r "$XDG_CONFIG_HOME/envman/load.sh" ]] && source "$XDG_CONFIG_HOME/envman/load.sh"
 (( $+commands[kubectl] )) && source <(kubectl completion zsh)
 (( $+commands[pyenv] )) && eval "$(pyenv init -)"
 

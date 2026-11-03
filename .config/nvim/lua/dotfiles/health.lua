@@ -2,6 +2,7 @@ local M = {}
 function M.check()
   vim.health.start('Dotfiles development tools')
   for _, tool in ipairs({ 'nvim', 'rg', 'fzf', 'fd', 'go', 'gofmt', 'gopls', 'basedpyright-langserver', 'ruff', 'terraform', 'terraform-ls', 'tflint', 'dlv', 'uv', 'tree-sitter', 'cc' }) do
+    if tool == 'fd' then tool = require('dotfiles.tools').fd() or 'fd' end
     if vim.fn.executable(tool) == 1 then
       vim.health.ok(tool .. ': ' .. vim.fn.exepath(tool))
     else

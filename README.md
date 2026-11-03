@@ -15,6 +15,9 @@ sh ~/dotfiles/install.sh
 The installer moves existing files to a timestamped directory under
 `~/.local/state/dotfiles-backups/`, then creates symlinks. Re-running it leaves
 correct links unchanged.
+The tmux configuration is linked at both `~/.tmux.conf` and its XDG path
+so older Ubuntu tmux releases also load it. Git worktree checkouts are supported;
+set `DOTFILES=/path/to/checkout` when installing from a different location.
 
 Install the core tools on macOS:
 
@@ -41,7 +44,7 @@ its native LSP client, gopls for Go, BasedPyright for Python,
 and terraform-ls for Terraform. On macOS, install their supporting tools:
 
 ```sh
-brew install go gopls basedpyright terraform-ls ruff tree-sitter fd delve uv
+brew install go gopls basedpyright terraform-ls ruff tree-sitter-cli fd delve uv
 brew install terraform-linters/tap/tflint
 brew install hashicorp/tap/terraform
 sh ~/dotfiles/scripts/setup-nvim.sh
@@ -53,10 +56,23 @@ and installs the configured Tree-sitter parsers. It creates an isolated
 `python-tools` environment in Neovim's data directory with pytest and debugpy.
 Project `.venv`/`venv` interpreters take precedence for tests and debugged code;
 install pytest and project dependencies in those environments yourself.
-It requires a C compiler. On Ubuntu, install these same
+It requires a C compiler. On Linux hosts with Nix, setup installs missing fd,
+terraform-ls, TFLint, Ruff, Tree-sitter CLI, and ripgrep into the user profile.
+On Ubuntu without Nix, it installs missing `fd-find` through apt (using sudo
+when needed) and installs the official terraform-ls 0.39.1 binary in
+`~/.local/bin` after verifying its SHA-256 checksum. Install the remaining
 executables through your package manager or their official distributions,
 then run the script. Parser installation is explicit; normal startup never
 downloads parsers. Use `:DotfilesParsers` to install them again after updates.
+Ubuntu's `fd-find` package provides `fdfind`; setup, folder search, and health
+checks accept either `fd` or `fdfind`. For Neovim system clipboard access on
+Ubuntu, install `wl-clipboard` for Wayland or `xclip` for X11. macOS uses its
+built-in clipboard tools. Stock Ubuntu Neovim packages may be older than the
+required version; check `nvim --version` before running setup.
+
+Shared VS Code settings use tool discovery instead of user-specific extension
+and Minikube paths. Keep any local YAML schema registrations and executable
+overrides in machine-local or project settings.
 
 Frequent Neovim keys:
 

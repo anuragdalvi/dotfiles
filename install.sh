@@ -5,7 +5,7 @@ DOTFILES=${DOTFILES:-"$HOME/dotfiles"}
 BACKUP_DIR=${XDG_STATE_HOME:-"$HOME/.local/state"}/dotfiles-backups/$(date +%Y%m%d-%H%M%S)
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
 
-if [ ! -d "$DOTFILES/.git" ]; then
+if [ ! -e "$DOTFILES/.git" ]; then
   printf 'Expected the dotfiles repository at %s\n' "$DOTFILES" >&2
   exit 1
 fi
@@ -46,6 +46,8 @@ link_file() {
 
 link_file "$DOTFILES/zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES/.config/tmux/tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
+# Older Ubuntu tmux releases do not discover the XDG configuration path.
+link_file "$DOTFILES/.config/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_file "$DOTFILES/.config/nvim/init.lua" "$CONFIG_HOME/nvim/init.lua"
 link_file "$DOTFILES/.config/nvim/lua/dotfiles" "$CONFIG_HOME/nvim/lua/dotfiles"
 link_file "$DOTFILES/.config/nvim/nvim-pack-lock.json" "$CONFIG_HOME/nvim/nvim-pack-lock.json"
