@@ -80,6 +80,7 @@ Frequent Neovim keys:
 | --- | --- |
 | `Space f / b` | Files / buffers |
 | `Space s g` | Search project contents |
+| `Space s c` | Search Neovim's current working directory (`:pwd`) |
 | `Space s d` | Choose a folder, then search its contents |
 | `Space s q` | Quickfix picker |
 | `Space e / n` | Oil directory editor / project tree |
@@ -111,6 +112,7 @@ Frequent Neovim keys:
 | `Space u f / u i` | Toggle format-on-save / import changes on save |
 | `Ctrl-Space` (insert mode) | Request completion (LSP, snippets, paths, SQL) |
 | `Ctrl-n / Ctrl-p / Ctrl-y` (completion menu) | Next / previous / accept suggestion |
+| `Down / Up / Enter` (completion menu) | Next / previous / accept selected suggestion |
 | `Tab / Shift-Tab` (snippet) | Next / previous placeholder |
 
 Press Space and pause to see available shortcuts in WhichKey. `Space s` and
@@ -143,7 +145,8 @@ not execute them automatically; press `Space S` in a Dadbod query buffer
 to run the query (or the selected SQL in Visual mode).
 
 Completion suggestions appear automatically while typing. Suggestions stay
-unselected until you choose one.
+unselected until you choose one. Use Down/Up to select a suggestion and Enter
+to accept it. When nothing is selected, Enter inserts a new line.
 Braces, parentheses, brackets, and quotes close automatically. Typing the
 closing character moves past it; Backspace inside an empty pair removes both.
 

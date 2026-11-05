@@ -70,6 +70,8 @@ vim.keymap.set('n', '<Space>f', function() fzf.files({ cwd = project.root() }) e
 -- <Space>sg: search the detected project with ripgrep.
 vim.keymap.set('n', '<Space>sg', function() fzf.live_grep({ cwd = project.root() }) end, { desc = 'Project search' })
 
+vim.keymap.set('n', '<Space>sc', function() fzf.live_grep({ cwd = vim.fn.getcwd() }) end, { desc = 'Search current directory' })
+
 -- Choose a folder under the working directory, then search its contents.
 vim.keymap.set('n', '<Space>sd', function()
   local cwd = project.root()

@@ -5,6 +5,7 @@ require('blink.cmp').setup({
     ['<C-n>'] = { 'select_next', 'fallback' },
     ['<C-p>'] = { 'select_prev', 'fallback' },
     ['<C-y>'] = { 'accept', 'fallback' },
+    ['<CR>'] = { 'accept', 'fallback' },
     ['<C-e>'] = { 'hide', 'fallback' },
     ['<Tab>'] = { 'snippet_forward', 'fallback' },
     ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
