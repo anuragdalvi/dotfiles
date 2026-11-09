@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jesseduffield/lazygit/master/schema/config.json
+gui:
+  border: rounded
+  sidePanelWidth: 0.28
+os:
+  editPreset: nvim

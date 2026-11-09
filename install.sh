@@ -52,6 +52,7 @@ link_file "$DOTFILES/.config/nvim/init.lua" "$CONFIG_HOME/nvim/init.lua"
 link_file "$DOTFILES/.config/nvim/lua/dotfiles" "$CONFIG_HOME/nvim/lua/dotfiles"
 link_file "$DOTFILES/.config/nvim/nvim-pack-lock.json" "$CONFIG_HOME/nvim/nvim-pack-lock.json"
 link_file "$DOTFILES/.config/herdr/config.toml" "$CONFIG_HOME/herdr/config.toml"
+link_file "$DOTFILES/.config/lazygit/config.yml" "$CONFIG_HOME/lazygit/config.yml"
 link_file "$DOTFILES/.config/opencode/opencode.jsonc" "$CONFIG_HOME/opencode/opencode.jsonc"
 link_file "$DOTFILES/.config/opencode/tui.json" "$CONFIG_HOME/opencode/tui.json"
 link_file "$DOTFILES/.config/opencode/agent/reviewer.md" "$CONFIG_HOME/opencode/agent/reviewer.md"
@@ -68,6 +69,8 @@ case $(uname -s) in
     fi
     ;;
   Darwin)
+    # Lazygit uses this native path when launched without XDG_CONFIG_HOME.
+    link_file "$DOTFILES/.config/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
     link_file "$DOTFILES/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
     link_file "$DOTFILES/vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json"
     if [ -d "$HOME/Library/Application Support/Cursor/User" ]; then

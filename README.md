@@ -22,7 +22,7 @@ set `DOTFILES=/path/to/checkout` when installing from a different location.
 Install the core tools on macOS:
 
 ```sh
-brew install zsh tmux neovim ripgrep fzf herdr
+brew install zsh tmux neovim ripgrep fzf herdr lazygit
 ```
 
 Install Herdr on Ubuntu with its official stable installer. Download and
@@ -34,6 +34,38 @@ less /tmp/herdr-install.sh
 sh /tmp/herdr-install.sh
 herdr integration install opencode
 ```
+
+## Git workflow
+
+Use Lazygit alongside Neovim for repository status, staging, commits, branch
+management, and rebasing. Gitsigns remains configured in Neovim for reviewing
+and staging individual hunks while editing; Diffview is available for detailed
+diffs and file history.
+
+Install Lazygit on macOS or Ubuntu with:
+
+```sh
+sh ~/dotfiles/scripts/setup-lazygit.sh
+sh ~/dotfiles/install.sh
+```
+
+Setup uses Homebrew on macOS, an existing Nix profile on Linux, or the official
+Lazygit 0.66.2 Linux release binary with SHA-256 verification. Linux release
+binaries install under `~/.local/bin` and do not require sudo. An existing
+Lazygit installation is left in place.
+
+Launch `lazygit` or `lg` from a repository in another Herdr/tmux pane or tab.
+Run `source ~/.zshrc` once to pick up the alias in an existing shell.
+The shared configuration is `.config/lazygit/config.yml`. The installer links
+the XDG path on both systems and macOS's native Application Support path.
+In Lazygit, `e` opens the selected file in Neovim; quit that editor with `:q`
+to return to Lazygit. Use `?` for Lazygit's key help and `q` to quit.
+
+Existing Gitsigns keys stay available: `]h`/`[h` navigate hunks, `Space hp`
+previews, `Space hs` stages, and `Space hr` discards the hunk. In Visual mode,
+`Space hs`/`Space hr` operate on the selected lines.
+
+## Neovim
 
 Neovim installs pinned Oil `v2.16.0` and fzf-lua on first launch through its
 built-in `vim.pack` manager. The tracked `.config/nvim/nvim-pack-lock.json`

@@ -27,6 +27,7 @@ fi
 
 alias python=python3
 alias k=kubectl
+alias lg=lazygit
 
 # Keep host-specific SSH keys and agents out of shared shell startup. macOS
 # Keychain and Ubuntu's desktop session normally provide SSH_AUTH_SOCK.
