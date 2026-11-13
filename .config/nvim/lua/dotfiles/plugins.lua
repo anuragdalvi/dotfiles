@@ -71,6 +71,9 @@ for _, src in ipairs({
   'fredrikaverpil/neotest-golang', 'mfussenegger/nvim-dap', 'rcarriga/nvim-dap-ui',
   'leoluz/nvim-dap-go', 'mfussenegger/nvim-dap-python', 'folke/persistence.nvim',
   'rafamadriz/friendly-snippets',
+  'nvim-mini/mini.ai', 'nvim-mini/mini.surround',
+  'MagicDuck/grug-far.nvim', 'gbprod/yanky.nvim',
+  'folke/sidekick.nvim',
 }) do
   plugins[#plugins + 1] = { src = 'https://github.com/' .. src }
 end

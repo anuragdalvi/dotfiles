@@ -39,5 +39,7 @@ require('which-key').add({
   { '<leader>x', group = 'Diagnostics' }, { '<leader>u', group = 'Toggles' },
   { '<leader>j', group = 'Jump history' }, { '<leader>g', group = 'Git' },
   { '<leader>z', group = 'Debug' }, { '<leader>q', group = 'Sessions' },
-  { '<leader>y', group = 'Copy paths' },
+  { '<leader>y', group = 'Yank / paths' },
+  { '<leader>A', group = 'AI / OpenCode', mode = { 'n', 'x' } },
+  { 'gs', group = 'Surround', mode = { 'n', 'x' } },
 })

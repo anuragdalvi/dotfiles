@@ -42,6 +42,10 @@
       "rev": "f2421c550618d257048afa650413d9e542ddbe67",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "grug-far.nvim": {
+      "rev": "91b7e58b6ffc6ddad5acb7a7c1df21257724449e",
+      "src": "https://github.com/MagicDuck/grug-far.nvim"
+    },
     "indent-blankline.nvim": {
       "rev": "f1e186e44d3b7f9ae918008e2c28ce37c6023d2d",
       "src": "https://github.com/lukas-reineke/indent-blankline.nvim"
@@ -50,9 +54,17 @@
       "rev": "572e8157de85d7af3f0085b5c74c059518900649",
       "src": "https://github.com/zyudneko/indent-rainbowline.nvim"
     },
+    "mini.ai": {
+      "rev": "f40e4fe729a568357218d599edb5ca107cf94af4",
+      "src": "https://github.com/nvim-mini/mini.ai"
+    },
     "mini.nvim": {
       "rev": "ac5dffcc52b8378fbb15efeb0497a83e57a0b01c",
       "src": "https://github.com/nvim-mini/mini.nvim"
+    },
+    "mini.surround": {
+      "rev": "f993f66edfc2741cc515aa1f782816fd5c17bc14",
+      "src": "https://github.com/nvim-mini/mini.surround"
     },
     "neogit": {
       "rev": "5adc81b26232954cd7a90f158aa7844c18fc3165",
@@ -131,6 +143,10 @@
       "rev": "f94914e0486466aac53570de084a475e288ec46d",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
+    "sidekick.nvim": {
+      "rev": "3d80a47e6375f6d647c9695d3afea6fa1b3275df",
+      "src": "https://github.com/folke/sidekick.nvim"
+    },
     "telescope.nvim": {
       "rev": "40aedd8a68c78a656a10a8d62d80c54af59420fb",
       "src": "https://github.com/nvim-telescope/telescope.nvim"
@@ -158,6 +174,10 @@
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
+    },
+    "yanky.nvim": {
+      "rev": "edcbe0f6d693b9e7860626094f886a2d79cfe63b",
+      "src": "https://github.com/gbprod/yanky.nvim"
     }
   }
 }

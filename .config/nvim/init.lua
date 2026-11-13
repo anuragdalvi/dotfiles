@@ -5,7 +5,7 @@ vim.opt.runtimepath:prepend(config_dir)
 
 for _, module in ipairs({
   'options', 'plugins', 'editor', 'git', 'completion', 'format',
-  'search', 'keymaps', 'lsp', 'diagnostics', 'workflows', 'health',
+  'search', 'keymaps', 'editing', 'ai', 'lsp', 'diagnostics', 'workflows', 'health',
 }) do
   require('dotfiles.' .. module)
 end

@@ -115,9 +115,13 @@ Frequent Neovim keys:
 | `Space s c` | Search Neovim's current working directory (`:pwd`) |
 | `Space s d` | Choose a folder, then search its contents |
 | `Space s q` | Quickfix picker |
+| `Space s r` | Search and replace in the detected project (grug-far) |
 | `Space e / n` | Oil directory editor / project tree |
 | `Space D` | Toggle database browser (Dadbod UI) |
 | `s / S` | Flash text jump / Tree-sitter code selection |
+| `gsa / gsd / gsr` | Add / delete / replace surrounds (mini.surround) |
+| `gsf / gsF / gsh` | Find surround right / left / highlight |
+| `v ia / c ia / d aa` | Select / change an argument / delete an argument with separator (mini.ai) |
 | `Space ?` | Help search |
 | `Space v / -` | Split right / below (`Space \|` also splits right) |
 | `Ctrl-h/j/k/l` | Focus a split |
@@ -130,6 +134,11 @@ Frequent Neovim keys:
 | `[d / ]d / Space d` | Previous diagnostic / next diagnostic / diagnostic details |
 | `Space jo / ji` | Oldest earlier / newest forward jump |
 | `Space y p / y P / y n` | Copy relative path / absolute path / filename (also in Oil) |
+| `Space y h` | Choose and paste from yank history |
+| `Space A a` / `Ctrl-.` | Toggle OpenCode in Sidekick (Ctrl-. also works in terminal mode) |
+| `Space A f` | Add the current file to OpenCode's prompt |
+| Visual `Space A v` | Add selected text to OpenCode's prompt |
+| `[y / ]y` | After pasting, replace that paste with an older / newer yank |
 | `Space p r / p c` | Show project root / set tab directory to root |
 | `Ctrl-\` | Toggle a persistent 12-line project terminal |
 | `Space x x / x b / x q` | Workspace diagnostics / buffer diagnostics / quickfix panel |
@@ -163,6 +172,38 @@ For Flash navigation, press `s` in Normal mode, type a few characters from
 the target text, then press its displayed label to jump there. Press `S`
 to select a labeled code structure, or Escape to cancel. These mappings
 also work in Visual and operator-pending modes; `Space s g` opens project search.
+
+mini.ai extends text objects: `cia` changes the argument under the cursor,
+and `daa` deletes it with its separator. With mini.surround, `gsaiw"` wraps
+the current word in double quotes, `gsd"` removes surrounding double quotes,
+and `gsr"'` replaces them with single quotes. Surround uses `gs` so Flash's
+`s` stays responsive; autopairs still inserts closing brackets while typing.
+
+For project-wide replacement, press `Space s r`, fill in Search and Replace,
+and review the matches. Press `Space r` in that buffer in Normal mode to apply
+the replacement, or `Space c` to close it. Its window uses the detected project
+root without changing the working directory of your existing file windows.
+The Paths input can narrow the operation to particular files or directories.
+
+Yanky keeps the last 100 copied/deleted entries in ShaDa between sessions.
+Use `p`/`P` as usual, then `[y` or `]y` to cycle that paste before making
+another edit. `Space y h` opens a history picker and pastes the chosen entry
+after the cursor. `:YankyClearHistory` clears the saved history.
+
+[Sidekick](https://github.com/folke/sidekick.nvim) runs OpenCode in an 80-column
+right split. Press `Space A a` to open/hide it, or `Ctrl-.` from a file or
+the terminal. If your terminal does not send Ctrl-., use `Ctrl-\\ Ctrl-n`
+to leave terminal mode, then `Space A a`. Hiding the window keeps the process
+running for this Neovim session; quitting Neovim ends its embedded terminal.
+Use `Ctrl-h` to return to your code while keeping OpenCode visible.
+
+OpenCode starts in Neovim's current directory (`:pwd`); use `Space p c` before
+opening it to use the detected project root. `Space A f` adds the current file
+path to its prompt; select text and press `Space A v` to add that selection.
+These actions leave the prompt unsubmitted so you can add instructions and
+press Enter yourself. Your existing OpenCode configuration and authentication
+apply. Sidekick's Copilot next-edit suggestions are disabled; no Copilot setup
+is required for this CLI workflow, and Blink's Tab/snippet mappings stay intact.
 
 Database browsing uses `vim-dadbod`, `vim-dadbod-ui`, and
 `vim-dadbod-completion`. Open it with `Space D`, then use `A` in the drawer
