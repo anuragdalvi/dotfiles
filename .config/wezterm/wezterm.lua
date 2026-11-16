@@ -8,11 +8,6 @@ config.default_cwd = wezterm.home_dir
 config.keys = {
   {
     key = 't',
-    mods = 'CTRL',
-    action = wezterm.action.SpawnCommandInNewTab { cwd = wezterm.home_dir },
-  },
-  {
-    key = 't',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.SpawnCommandInNewTab { cwd = wezterm.home_dir },
   },

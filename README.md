@@ -61,11 +61,20 @@ the XDG path on both systems and macOS's native Application Support path.
 In Lazygit, `e` opens the selected file in Neovim; quit that editor with `:q`
 to return to Lazygit. Use `?` for Lazygit's key help and `q` to quit.
 
+Inside Neovim, `Space g s` opens Lazygit at the current repository root in a
+floating terminal. Its normal `q` quits Lazygit and closes the float. To hide
+it while keeping it running, press `Ctrl-\ Ctrl-n`, then `q`; `Space g s`
+reopens the same process. Neogit is still available through `:Neogit`.
+
 Existing Gitsigns keys stay available: `]h`/`[h` navigate hunks, `Space hp`
 previews, `Space hs` stages, and `Space hr` discards the hunk. In Visual mode,
 `Space hs`/`Space hr` operate on the selected lines.
 
 ## Neovim
+
+[LazyVim](https://www.lazyvim.org/) is a useful reference for Neovim plugins,
+keymaps, and configuration ideas. This repository uses its own `vim.pack`
+configuration.
 
 Neovim installs pinned Oil `v2.16.0` and fzf-lua on first launch through its
 built-in `vim.pack` manager. The tracked `.config/nvim/nvim-pack-lock.json`
@@ -124,7 +133,7 @@ Frequent Neovim keys:
 | `v ia / c ia / d aa` | Select / change an argument / delete an argument with separator (mini.ai) |
 | `Space ?` | Help search |
 | `Space v / -` | Split right / below (`Space \|` also splits right) |
-| `Ctrl-h/j/k/l` | Focus a split |
+| `Ctrl-h/j/k/l` (Normal mode) | Focus a split |
 | `Space hs / hr / hp / hb` | Stage / discard / preview hunk / blame |
 | Visual `Space hs / hr` | Stage / discard selected lines |
 | `[[ / ]]` | Previous / next outline symbol |
@@ -137,10 +146,13 @@ Frequent Neovim keys:
 | `Space y h` | Choose and paste from yank history |
 | `Space A a` / `Ctrl-.` | Toggle OpenCode in Sidekick (Ctrl-. also works in terminal mode) |
 | `Space A f` | Add the current file to OpenCode's prompt |
+| `Space A n` | Create/reopen an agent worktree workspace |
 | Visual `Space A v` | Add selected text to OpenCode's prompt |
 | `[y / ]y` | After pasting, replace that paste with an older / newer yank |
 | `Space p r / p c` | Show project root / set tab directory to root |
-| `Ctrl-\` | Toggle a persistent 12-line project terminal |
+| `F7` / `Space T` | Toggle a persistent 12-line project terminal (F7 also works in terminal mode) |
+| `Ctrl-\ Ctrl-n` | Leave terminal input mode; shell editing keys remain available |
+| `Space u c` | Toggle completion for all buffers in this Neovim session |
 | `Space x x / x b / x q` | Workspace diagnostics / buffer diagnostics / quickfix panel |
 | `Space t t / t f / t a / t l` | Run nearest test / file / project / last test |
 | `Space t s / t o / t S / t d` | Test summary / output / stop / debug nearest test |
@@ -149,7 +161,9 @@ Frequent Neovim keys:
 | `Space z u / z e` | Debug UI / inspect expression |
 | `F5 / F10 / F11 / Shift-F11` | Debug continue / over / into / out |
 | `Space q r / q s / q l / q x` | Restore project session / choose session / restore last / stop saving |
-| `Space g d / g h / g s` | Diffview / file history / Neogit |
+| `Space g d / g h / g s` | Diffview / file history / Lazygit |
+| `Space g b / g B` | DiffBandit repository changes / current file |
+| `Space J j / J s / J d / J e` | Jujutsu log / status / diff / describe |
 | `Space u f / u i` | Toggle format-on-save / import changes on save |
 | `Ctrl-Space` (insert mode) | Request completion (LSP, snippets, paths, SQL) |
 | `Ctrl-n / Ctrl-p / Ctrl-y` (completion menu) | Next / previous / accept suggestion |
@@ -167,6 +181,23 @@ Oil, and copy to the system clipboard. Relative paths are relative to `:pwd`.
 
 In search pickers, Up and Down move through results and wrap between the
 first and last result, including the folder picker opened by `Space s d`.
+
+Use `Space u c` to toggle completion for this Neovim session. Restarting Neovim
+enables it again. A buffer explicitly disabled with `vim.b.completion = false`
+stays disabled until you reset that buffer setting. `Ctrl-e` only dismisses the
+current completion menu; `Ctrl-Space` requests suggestions while enabled.
+
+`F7` toggles the project shell from Normal or Terminal mode; `Space T` is the
+Normal-mode alternative. To navigate from an ordinary terminal, first press
+`Ctrl-\ Ctrl-n`, then use `Ctrl-h/j/k/l`. Sidekick keeps its own local terminal
+navigation shortcuts. Modified shortcuts such as `Ctrl-.` and `Ctrl-Shift-o/i`
+depend on terminal keyboard encoding; `Space A a` and `Space j o/i` are the
+portable alternatives.
+
+Resize a Neovim split with `Ctrl-w <` / `Ctrl-w >` (width) and `Ctrl-w +` /
+`Ctrl-w -` (height); put a count first for larger changes, such as `5 Ctrl-w >`.
+`Ctrl-w =` makes the splits equal. These work for project terminal and Diffview
+splits too, after leaving terminal input mode if necessary.
 
 For Flash navigation, press `s` in Normal mode, type a few characters from
 the target text, then press its displayed label to jump there. Press `S`
@@ -192,13 +223,16 @@ after the cursor. `:YankyClearHistory` clears the saved history.
 
 [Sidekick](https://github.com/folke/sidekick.nvim) runs OpenCode in an 80-column
 right split. Press `Space A a` to open/hide it, or `Ctrl-.` from a file or
-the terminal. If your terminal does not send Ctrl-., use `Ctrl-\\ Ctrl-n`
+the terminal. If your terminal does not send Ctrl-., use `Ctrl-\ Ctrl-n`
 to leave terminal mode, then `Space A a`. Hiding the window keeps the process
-running for this Neovim session; quitting Neovim ends its embedded terminal.
+running. OpenCode now lives in a managed tmux session, so quitting Neovim
+detaches its view while the agent keeps running. Reopen Neovim in that worktree
+and press `Space A a` to reconnect.
 Use `Ctrl-h` to return to your code while keeping OpenCode visible.
 
-OpenCode starts in Neovim's current directory (`:pwd`); use `Space p c` before
-opening it to use the detected project root. `Space A f` adds the current file
+Sidekick uses the Git worktree root (or project root outside Git) and sets the
+tab's working directory there. Agents are selected by worktree directory;
+opening a second worktree starts a separate agent. `Space A f` adds the current file
 path to its prompt; select text and press `Space A v` to add that selection.
 These actions leave the prompt unsubmitted so you can add instructions and
 press Enter yourself. Your existing OpenCode configuration and authentication
@@ -326,9 +360,10 @@ Herdr uses these workspace keys:
 | `Ctrl-b q` | Detach |
 | `Ctrl-b ?` | Key help |
 
-tmux uses its default `Ctrl-b` bindings, plus `v` to split horizontally, `q`
-to detach, `x` to confirm pane closure, and `r` to reload its configuration.
-Use `Ctrl-b` followed by an arrow key to focus a pane. Copy mode uses the
+tmux uses `Ctrl-b v` to split right, `Ctrl-b -` to split down, and prefix plus
+`h/j/k/l` to focus panes, matching Herdr. Prefix plus `q` detaches, `x` confirms
+pane closure, `K` opens Sesh, and `r` reloads configuration. Default arrow-key
+pane navigation also works. Copy mode uses the
 default Emacs keys; when vi copy mode is selected separately, `y` copies the
 selection.
 
@@ -337,9 +372,101 @@ The shell configuration is tracked at `zshrc`. The installer links it to
 editor selection, optional tool-manager hooks, and completions in
 `~/.zshrc.local` as needed.
 
-Use tmux for a normal shell/editor project session. Use Herdr instead when one
-or more coding agents need status tracking, restore, or long-lived execution.
+WezTerm reserves `Ctrl-Shift-t` for a new tab and leaves `Ctrl-t` available to
+the shell's fzf file picker. VS Code's shell editing translations apply only
+outside the terminal's alternate screen, and `Cmd-w` hides its panel while
+leaving terminal processes running.
+
+Use tmux for shell/editor projects and persistent agent workspaces. Herdr is
+an optional alternative for its agent status tracking.
 Do not run tmux inside Herdr because Herdr cannot detect agents behind tmux.
+
+## Workspace tools
+
+Install the CLI companions and activate their configuration:
+
+```sh
+sh ~/dotfiles/scripts/setup-workspace.sh
+sh ~/dotfiles/install.sh
+source ~/.zshrc
+```
+
+Setup installs missing tools with Homebrew or an existing Nix installation.
+On other Linux installations, use the upstream instructions for
+[zoxide](https://github.com/ajeetdsouza/zoxide#installation),
+[sesh](https://github.com/joshmedeski/sesh#how-to-install), and
+[Jujutsu](https://docs.jj-vcs.dev/latest/install-and-setup/), plus tmux and fzf,
+then rerun setup.
+
+Use `z dotfiles` to jump to a visited directory or `zi` for an interactive
+directory picker. `sesh-pick` selects or creates a tmux project session;
+inside tmux, `Ctrl-b K` opens the same picker in a popup. Sesh includes live
+tmux sessions, the configured dotfiles project, and zoxide directory history.
+Sesh manages tmux sessions; continue using Herdr's own workspace controls
+when running Herdr. Neovim's Persistence shortcuts restore editor sessions.
+
+[jj.nvim](https://github.com/NicolasGB/jj.nvim) exposes `:J log`, `:J status`,
+`:J diff`, and `:J describe`. Use these inside a Jujutsu repository. To opt an
+existing Git project into a colocated Jujutsu workflow, run `jj git init
+--colocate` in that project yourself. Installation does not initialize any
+repositories. The plugin uses Neovim's native diff backend.
+
+[DiffBandit](https://github.com/CoreyKaylor/diffbandit.nvim) opens with
+`Space g b`; `Space g B` limits it to the current file.
+`Space g b` also works from Oil using the directory being browsed; `Space g B`
+uses the file selected in Oil. Remote Oil directories are not supported.
+Within the diff, use
+`]f`/`[f` for files, `]c`/`[c` for hunks, and `q` to close. To review one
+commit, run `:DiffBanditGitCommit HEAD`; for branches, use
+`:DiffBanditGitCompare main HEAD`. Diffview and Lazygit remain available.
+Connector rendering adapts to the terminal; iTerm2/tmux use Unicode cells.
+Sidekick continues to run OpenCode with `Space A a` as documented above.
+
+## Parallel agent workspaces
+
+From any Git checkout or linked worktree, run:
+
+```sh
+agent-session agent/fix-auth
+agent-session agent/add-tests
+agent-session agent/experiment --base main
+agent-session --list
+```
+
+Each task gets a Git worktree, a tmux workspace with `code` and `shell` windows,
+and an OpenCode agent opened through Sidekick in the editor. New worktrees live
+beside the primary checkout under `<repository>.worktrees/`. They start at the
+current commit unless `--base` is supplied; uncommitted edits stay in the source
+checkout. An existing branch can be used if it is not checked out in the primary
+checkout. Re-running a task reuses its worktree and workspace instead of
+resetting the branch or starting another editor.
+
+From your current session, `Ctrl-b N` asks for a task branch and switches to its
+workspace. Inside Neovim, `Space A n` does the same. Outside tmux, the shell
+command attaches to the new workspace; the Neovim shortcut prints the attach
+command instead. Install the helper with `sh ~/dotfiles/install.sh`, reload
+Zsh and tmux, and restart Neovim after updating this configuration.
+
+Use `Ctrl-b K` / `sesh-pick` to switch projects, `Ctrl-b c` for another window,
+and `Ctrl-b L` to return to the previous workspace. Worktree directories are
+added to zoxide, so they remain discoverable in Sesh even after a workspace is
+closed. In the editor, `Space A a` toggles the worktree's agent, `Space A f` and
+Visual `Space A v` add context without submitting it, and `Space g s` opens
+Lazygit. Use `Space g b` for DiffBandit and your existing test/debug shortcuts
+to review and validate the agent's work.
+
+Sidekick stores its live agents in separate `opencode <hash>` tmux sessions.
+Those are the agent backends; the repository/task-named sessions are your
+workspaces. Closing Neovim or detaching tmux leaves agents running; stopping
+the agent, killing its backend session, stopping the tmux server, or rebooting
+ends the process. This does not provide Herdr-style status tracking or automatic
+process recovery after a reboot.
+
+When a task is finished, review/commit/merge it, exit its OpenCode agent, and
+close its task workspace. Use `git worktree list` to find the exact path, then
+`git worktree remove /path/to/task-worktree` and optionally `git branch -d
+agent/fix-auth`. Git's normal checks protect uncommitted work and unmerged
+branches; no automatic cleanup or force removal is configured.
 
 ## Updates
 

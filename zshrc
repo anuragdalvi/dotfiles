@@ -29,6 +29,15 @@ alias python=python3
 alias k=kubectl
 alias lg=lazygit
 
+# Directory history and interactive project/session switching.
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+sesh-pick() {
+  sh "$XDG_CONFIG_HOME/sesh/picker.sh"
+}
+agent-session() {
+  python3 "$XDG_CONFIG_HOME/tmux/agent-session.py" "$@"
+}
+
 # Keep host-specific SSH keys and agents out of shared shell startup. macOS
 # Keychain and Ubuntu's desktop session normally provide SSH_AUTH_SOCK.
 

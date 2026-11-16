@@ -95,16 +95,15 @@ end, { desc = 'Choose folder to search' })
 
 vim.keymap.set('n', '<Space>pr', '<cmd>ProjectRoot<CR>', { desc = 'Show project root' })
 vim.keymap.set('n', '<Space>pc', function() vim.cmd.tcd(project.root()) end, { desc = 'Use project root as tab directory' })
-vim.keymap.set({ 'n', 't' }, '<C-\\>', function()
+local function toggle_project_terminal()
   if vim.fn.mode() == 't' then
     vim.cmd.stopinsert()
     vim.schedule(project.terminal)
   else project.terminal() end
-end, { desc = 'Toggle project terminal' })
-vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', { desc = 'Focus split left' })
-vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', { desc = 'Focus split down' })
-vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', { desc = 'Focus split up' })
-vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Focus split right' })
+end
+vim.keymap.set({ 'n', 't' }, '<F7>', toggle_project_terminal, { desc = 'Toggle project terminal' })
+vim.keymap.set('n', '<Space>T', toggle_project_terminal, { desc = 'Toggle project terminal' })
+-- Preserve Ctrl-\ Ctrl-n and shell editing keys in ordinary terminals.
 
 -- <Space>b: switch between open buffers.
 vim.keymap.set('n', '<Space>b', fzf.buffers, { desc = 'Open buffers' })

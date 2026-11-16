@@ -2,14 +2,14 @@
 // tmux or Herdr, not VS Code terminal panes, owns workspace navigation.
 // Sequences match iTerm "Natural Text Editing": ESC=u001b A=u0001 E=u0005 DEL=u007f U=u0015
 [
-    // -- Text-editing parity (zsh emacs mode reads these identically) --
+    // Shell editing only outside full-screen programs' alternate screen.
     {
         "key": "alt+left",
         "command": "workbench.action.terminal.sendSequence",
         "args": {
             "text": "\u001bb"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "alt+right",
@@ -17,7 +17,7 @@
         "args": {
             "text": "\u001bf"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "cmd+left",
@@ -25,7 +25,7 @@
         "args": {
             "text": "\u0001"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "cmd+right",
@@ -33,7 +33,7 @@
         "args": {
             "text": "\u0005"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "alt+backspace",
@@ -41,7 +41,7 @@
         "args": {
             "text": "\u001b\u007f"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "cmd+backspace",
@@ -49,7 +49,7 @@
         "args": {
             "text": "\u0015"
         },
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "ctrl+left",
@@ -57,7 +57,7 @@
         "args": {
             "text": "\u001bb"
         },
-        "when": "terminalFocus && isLinux"
+        "when": "terminalFocus && !terminalAltBufferActive && isLinux"
     },
     {
         "key": "ctrl+right",
@@ -65,7 +65,7 @@
         "args": {
             "text": "\u001bf"
         },
-        "when": "terminalFocus && isLinux"
+        "when": "terminalFocus && !terminalAltBufferActive && isLinux"
     },
     {
         "key": "ctrl+backspace",
@@ -73,17 +73,18 @@
         "args": {
             "text": "\u001b\u007f"
         },
-        "when": "terminalFocus && isLinux"
+        "when": "terminalFocus && !terminalAltBufferActive && isLinux"
     },
     // -- Terminal-local actions --
     {
         "key": "cmd+k",
         "command": "workbench.action.terminal.clear",
-        "when": "terminalFocus"
+        "when": "terminalFocus && !terminalAltBufferActive"
     },
     {
         "key": "cmd+w",
-        "command": "workbench.action.terminal.kill",
+        // Hide the panel while leaving its terminals and processes running.
+        "command": "workbench.action.togglePanel",
         "when": "terminalFocus"
     },
     {

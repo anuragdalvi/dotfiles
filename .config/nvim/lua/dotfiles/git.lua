@@ -1,4 +1,42 @@
 -- Neogit and Diffview initialize themselves when their commands are used.
+require('jj').setup({
+  picker = { snacks = false }, -- Use vim.ui.select without adding Snacks.
+  diff = { backend = 'native' },
+})
+require('diffbandit').setup({})
+-- DiffBandit defaults to the buffer name, but Oil names are virtual URIs.
+-- Adapt its public Git entry point so both commands and mappings use real paths.
+local diffbandit = require('diffbandit')
+local open_git = diffbandit.git
+diffbandit.git = function(opts)
+  opts = vim.tbl_extend('force', {}, opts or {})
+  if vim.bo.filetype == 'oil' then
+    local oil = require('oil')
+    local directory = oil.get_current_dir()
+    if not directory then return nil, 'DiffBandit requires a local Oil directory' end
+    opts.root = opts.root or directory
+    if opts.scope == 'current' then
+      local path = opts.path or (opts.pathspecs and opts.pathspecs[1])
+      if not path then
+        local entry = oil.get_cursor_entry()
+        path = entry and entry.name
+      end
+      if not path then return nil, 'Select a file in Oil to view its diff' end
+      if not vim.startswith(path, '/') then path = vim.fs.joinpath(directory, path) end
+      local stat = vim.uv.fs_stat(path)
+      if not stat or stat.type ~= 'file' then return nil, 'Select a local file in Oil to view its diff' end
+      opts.path = path
+    end
+  end
+  return open_git(opts)
+end
+vim.keymap.set('n', '<Space>gb', '<cmd>DiffBanditGit<CR>', { desc = 'DiffBandit repository changes' })
+vim.keymap.set('n', '<Space>gB', '<cmd>DiffBanditGitCurrent<CR>', { desc = 'DiffBandit current file' })
+vim.keymap.set('n', '<Space>Jj', '<cmd>J log<CR>', { desc = 'Jujutsu log' })
+vim.keymap.set('n', '<Space>Js', '<cmd>J status<CR>', { desc = 'Jujutsu status' })
+vim.keymap.set('n', '<Space>Jd', '<cmd>J diff<CR>', { desc = 'Jujutsu diff' })
+vim.keymap.set('n', '<Space>Je', '<cmd>J describe<CR>', { desc = 'Jujutsu describe change' })
+
 -- Octo needs setup to register its commands; defer it until first use.
 local function load_octo()
   if vim.g.dotfiles_octo_loaded then return end

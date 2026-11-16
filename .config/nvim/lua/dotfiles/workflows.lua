@@ -86,5 +86,5 @@ map('ql', function() require('persistence').load({ last = true }) end, 'Restore 
 map('qx', function() require('persistence').stop() end, 'Stop session saving')
 map('gd', '<cmd>DiffviewOpen<CR>', 'Working tree diff')
 map('gh', '<cmd>DiffviewFileHistory %<CR>', 'File history')
-map('gs', '<cmd>Neogit<CR>', 'Git status')
+map('gs', function() require('dotfiles.lazygit').open() end, 'Lazygit')
 return M

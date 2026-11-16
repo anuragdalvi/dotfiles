@@ -17,6 +17,10 @@
       "rev": "39e1fda12c0704e01029b286a4c7e77e33a0c5cd",
       "src": "https://github.com/scottmckendry/cyberdream.nvim"
     },
+    "diffbandit.nvim": {
+      "rev": "b6cd90ed40f5b407bf5ff6d076a48d89f87c8be2",
+      "src": "https://github.com/CoreyKaylor/diffbandit.nvim"
+    },
     "diffview.nvim": {
       "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
       "src": "https://github.com/sindrets/diffview.nvim"
@@ -53,6 +57,10 @@
     "indent-rainbowline.nvim": {
       "rev": "572e8157de85d7af3f0085b5c74c059518900649",
       "src": "https://github.com/zyudneko/indent-rainbowline.nvim"
+    },
+    "jj.nvim": {
+      "rev": "79be2ec0c8ba79d3e24184fc31d611245528fc67",
+      "src": "https://github.com/NicolasGB/jj.nvim"
     },
     "mini.ai": {
       "rev": "f40e4fe729a568357218d599edb5ca107cf94af4",
