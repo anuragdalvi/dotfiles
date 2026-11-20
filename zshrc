@@ -18,6 +18,8 @@ path=(
 export GOPATH="$HOME/go"
 export GOTOOLCHAIN="auto"
 export AWS_PAGER=""
+# Default editor; ~/.zshrc.local may override it.
+export EDITOR=${EDITOR:-nvim} VISUAL=${VISUAL:-nvim}
 
 # Homebrew completions live outside Zsh's default system completion paths.
 if (( $+commands[brew] )); then
@@ -45,10 +47,11 @@ autoload -Uz compinit
 compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
-HISTSIZE=5000
+HISTSIZE=50000
 HISTFILE="$HOME/.zsh_history"
-SAVEHIST=5000
-setopt appendhistory sharehistory hist_ignore_all_dups hist_save_no_dups
+SAVEHIST=50000
+# A leading space keeps a command out of history; a bare directory name cds.
+setopt appendhistory sharehistory hist_ignore_all_dups hist_save_no_dups hist_ignore_space autocd
 
 # Show the abbreviated working directory and Git branch above a plain prompt.
 autoload -Uz add-zsh-hook vcs_info
@@ -71,6 +74,20 @@ bindkey '^[b' backward-word
 bindkey '^[f' forward-word
 bindkey '^[^?' backward-kill-word
 bindkey '^U' backward-kill-line
+
+# Ctrl-x Ctrl-e edits the current command line in $EDITOR (Neovim).
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+
+# Alt-s opens the Sesh project picker from any prompt.
+_dotfiles_sesh_widget() {
+  zle -I
+  sesh-pick </dev/tty
+  zle reset-prompt
+}
+zle -N _dotfiles_sesh_widget
+bindkey '^[s' _dotfiles_sesh_widget
 
 for _dotfiles_suggestions in \
   "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" \

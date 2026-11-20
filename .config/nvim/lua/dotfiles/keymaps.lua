@@ -51,11 +51,18 @@ vim.keymap.set('n', '<C-S-i>', jump_newest, { desc = 'Jump to newest forward loc
 vim.keymap.set('n', '<Space>jo', jump_oldest, { desc = 'Jump to oldest earlier location' })
 vim.keymap.set('n', '<Space>ji', jump_newest, { desc = 'Jump to newest forward location' })
 
--- Window/split focus with Ctrl+hjkl, using Vim's spatial direction keys.
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Focus split left' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Focus split down' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Focus split up' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Focus split right' })
+-- Ctrl+hjkl focuses splits and continues into tmux panes at the edge;
+-- Alt+hjkl resizes the same way. tmux.conf holds the matching bindings.
+local splits = require('smart-splits')
+splits.setup({ move = { at_edge = 'stop' } })
+vim.keymap.set('n', '<C-h>', splits.move_cursor_left, { desc = 'Focus split/pane left' })
+vim.keymap.set('n', '<C-j>', splits.move_cursor_down, { desc = 'Focus split/pane down' })
+vim.keymap.set('n', '<C-k>', splits.move_cursor_up, { desc = 'Focus split/pane up' })
+vim.keymap.set('n', '<C-l>', splits.move_cursor_right, { desc = 'Focus split/pane right' })
+vim.keymap.set('n', '<M-h>', splits.resize_left, { desc = 'Resize split left' })
+vim.keymap.set('n', '<M-j>', splits.resize_down, { desc = 'Resize split down' })
+vim.keymap.set('n', '<M-k>', splits.resize_up, { desc = 'Resize split up' })
+vim.keymap.set('n', '<M-l>', splits.resize_right, { desc = 'Resize split right' })
 
 -- <Space>e: browse the directory containing the current file with Oil.
 vim.keymap.set('n', '<Space>e', '<cmd>Oil<CR>', { desc = 'Open parent directory' })
@@ -112,6 +119,15 @@ vim.keymap.set('n', '<Space>b', fzf.buffers, { desc = 'Open buffers' })
 vim.keymap.set('n', '<Space>sq', fzf.quickfix, { desc = 'Quickfix picker' })
 
 vim.keymap.set('n', '<Space>?', fzf.helptags, { desc = 'Search help' })
+vim.keymap.set('n', '<Space><Space>', fzf.resume, { desc = 'Resume last picker' })
+vim.keymap.set('n', '<Space>sw', function() fzf.grep_cword({ cwd = project.root() }) end, { desc = 'Search word under cursor' })
+vim.keymap.set('x', '<Space>sw', function() fzf.grep_visual({ cwd = project.root() }) end, { desc = 'Search selection' })
+vim.keymap.set('n', '<Space>/', fzf.blines, { desc = 'Search buffer lines' })
+vim.keymap.set('n', '<Space>so', fzf.oldfiles, { desc = 'Recent files' })
+vim.keymap.set('n', '<Space>uh', function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+  vim.notify('Inlay hints ' .. (vim.lsp.inlay_hint.is_enabled() and 'ON' or 'OFF'))
+end, { desc = 'Toggle inlay hints' })
 
 vim.keymap.set('n', '<Space>v', '<cmd>vsplit<CR>', { desc = 'Split right' })
 vim.keymap.set('n', '<Space>|', '<cmd>vsplit<CR>', { desc = 'Split right' })
@@ -123,16 +139,14 @@ vim.keymap.set('n', '<Space>w', '<cmd>write<CR>', { desc = 'Write file' })
 vim.keymap.set('n', ']]', function() require('aerial').next(vim.v.count1) end, { desc = 'Next symbol' })
 vim.keymap.set('n', '[[', function() require('aerial').prev(vim.v.count1) end, { desc = 'Previous symbol' })
 
--- Quickfix navigation.
-vim.keymap.set('n', ']q', ':cnext<CR>', { desc = 'Next quickfix result' })
-vim.keymap.set('n', '[q', ':cprev<CR>', { desc = 'Previous quickfix result' })
+-- ]q/[q, ]b/[b and ]d/[d are Neovim built-ins.
 
 -- Highlight on yank, a built-in convenience with no external dependency.
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
   callback = function()
-    vim.highlight.on_yank()
+    vim.hl.on_yank()
   end,
 })
 

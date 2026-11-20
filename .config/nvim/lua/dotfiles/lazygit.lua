@@ -55,4 +55,13 @@ function M.open()
   vim.cmd.startinsert()
 end
 
+-- Called by Lazygit's edit command: hide its float, keeping the process.
+function M.hide()
+  for _, session in pairs(sessions) do
+    local win = vim.fn.bufwinid(session.buf)
+    if win ~= -1 then vim.api.nvim_win_close(win, true) end
+  end
+  return ''
+end
+
 return M

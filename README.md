@@ -59,7 +59,9 @@ Run `source ~/.zshrc` once to pick up the alias in an existing shell.
 The shared configuration is `.config/lazygit/config.yml`. The installer links
 the XDG path on both systems and macOS's native Application Support path.
 In Lazygit, `e` opens the selected file in Neovim; quit that editor with `:q`
-to return to Lazygit. Use `?` for Lazygit's key help and `q` to quit.
+to return to Lazygit. When Lazygit runs inside Neovim (`Space g s`), `e` instead
+hides the float and opens the file in the surrounding editor; `Space g s`
+brings the same Lazygit back. Use `?` for Lazygit's key help and `q` to quit.
 
 Inside Neovim, `Space g s` opens Lazygit at the current repository root in a
 floating terminal. Its normal `q` quits Lazygit and closes the float. To hide
@@ -132,8 +134,12 @@ Frequent Neovim keys:
 | `gsf / gsF / gsh` | Find surround right / left / highlight |
 | `v ia / c ia / d aa` | Select / change an argument / delete an argument with separator (mini.ai) |
 | `Space ?` | Help search |
+| `Space Space` | Resume the last picker with its query |
+| `Space s w / s o / /` | Grep word (or Visual selection) / recent files / buffer lines |
+| `]q [q / ]b [b` | Quickfix / buffer navigation (Neovim built-ins) |
 | `Space v / -` | Split right / below (`Space \|` also splits right) |
-| `Ctrl-h/j/k/l` (Normal mode) | Focus a split |
+| `Ctrl-h/j/k/l` (Normal mode) | Focus a split, continuing into tmux panes at the edge |
+| `Alt-h/j/k/l` (Normal mode) | Resize a split (tmux panes too) |
 | `Space hs / hr / hp / hb` | Stage / discard / preview hunk / blame |
 | Visual `Space hs / hr` | Stage / discard selected lines |
 | `[[ / ]]` | Previous / next outline symbol |
@@ -153,6 +159,7 @@ Frequent Neovim keys:
 | `F7` / `Space T` | Toggle a persistent 12-line project terminal (F7 also works in terminal mode) |
 | `Ctrl-\ Ctrl-n` | Leave terminal input mode; shell editing keys remain available |
 | `Space u c` | Toggle completion for all buffers in this Neovim session |
+| `Space u h` | Toggle LSP inlay hints |
 | `Space x x / x b / x q` | Workspace diagnostics / buffer diagnostics / quickfix panel |
 | `Space t t / t f / t a / t l` | Run nearest test / file / project / last test |
 | `Space t s / t o / t S / t d` | Test summary / output / stop / debug nearest test |
@@ -363,11 +370,23 @@ Herdr uses these workspace keys:
 tmux uses `Ctrl-b v` to split right, `Ctrl-b -` to split down, and prefix plus
 `h/j/k/l` to focus panes, matching Herdr. Prefix plus `q` detaches, `x` confirms
 pane closure, `K` opens Sesh, and `r` reloads configuration. Default arrow-key
-pane navigation also works. Copy mode uses the
-default Emacs keys; when vi copy mode is selected separately, `y` copies the
-selection.
+pane navigation also works.
 
-The shell configuration is tracked at `zshrc`. The installer links it to
+Without the prefix, `Ctrl-h/j/k/l` moves between tmux panes and Neovim splits
+as one grid (smart-splits.nvim), and `Alt-h/j/k/l` resizes. Those keys no longer
+reach shells directly, so use `Ctrl-b Ctrl-l` to clear the screen and
+`Ctrl-b Ctrl-k` / `Ctrl-b Ctrl-h` / `Ctrl-b Ctrl-j` for the other shell keys.
+On macOS, set iTerm2's **Left Option key** to **Esc+** for the Alt bindings, and
+enable **Report keys using CSI u** so `Ctrl-.` and `Ctrl-Shift-o/i` reach Neovim
+through tmux (`extended-keys` is on).
+
+Windows and panes number from 1, mouse support is on, scrollback holds 50000
+lines, and copy mode uses vi keys: `Ctrl-b [`, `v` to start a selection, `y`
+to copy it to the system clipboard.
+
+The shell configuration is tracked at `zshrc`. `Ctrl-x Ctrl-e` edits the current
+command line in Neovim, `Alt-s` opens the Sesh picker, a leading space keeps a
+command out of the 50000-entry history, and typing a directory name changes to it. The installer links it to
 `~/.zshrc`; rerun the installer after updating an existing checkout. Keep
 editor selection, optional tool-manager hooks, and completions in
 `~/.zshrc.local` as needed.
