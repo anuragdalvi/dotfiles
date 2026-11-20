@@ -170,6 +170,7 @@ Frequent Neovim keys:
 | `Space q r / q s / q l / q x` | Restore project session / choose session / restore last / stop saving |
 | `Space g d / g h / g s` | Diffview / file history / Lazygit |
 | `Space g b / g B` | DiffBandit repository changes / current file |
+| `Space g c` | DiffBandit: everything this branch changed since the default branch (`origin/HEAD`, else `main`) |
 | `Space J j / J s / J d / J e` | Jujutsu log / status / diff / describe |
 | `Space u f / u i` | Toggle format-on-save / import changes on save |
 | `Ctrl-Space` (insert mode) | Request completion (LSP, snippets, paths, SQL) |

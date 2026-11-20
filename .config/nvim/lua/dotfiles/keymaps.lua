@@ -54,7 +54,8 @@ vim.keymap.set('n', '<Space>ji', jump_newest, { desc = 'Jump to newest forward l
 -- Ctrl+hjkl focuses splits and continues into tmux panes at the edge;
 -- Alt+hjkl resizes the same way. tmux.conf holds the matching bindings.
 local splits = require('smart-splits')
-splits.setup({ move = { at_edge = 'stop' } })
+-- v3 ships no multiplexers; the tmux backend sets @pane-is-vim for tmux.conf.
+splits.setup({ mux = { backend = 'smart-splits-backend-tmux', warn_if_unusable = false }, move = { at_edge = 'wrap' } })
 vim.keymap.set('n', '<C-h>', splits.move_cursor_left, { desc = 'Focus split/pane left' })
 vim.keymap.set('n', '<C-j>', splits.move_cursor_down, { desc = 'Focus split/pane down' })
 vim.keymap.set('n', '<C-k>', splits.move_cursor_up, { desc = 'Focus split/pane up' })

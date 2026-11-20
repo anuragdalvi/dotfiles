@@ -30,6 +30,28 @@ diffbandit.git = function(opts)
   end
   return open_git(opts)
 end
+-- Compare, commit, log and branch commands resolve their repository through
+-- diffbandit.git.root, which otherwise tries to cd into the oil:// buffer name.
+local diffbandit_git = require('diffbandit.git')
+local find_root = diffbandit_git.root
+diffbandit_git.root = function(opts)
+  opts = opts or {}
+  if not opts.root and not opts.path and vim.bo.filetype == 'oil' then
+    local directory = require('oil').get_current_dir()
+    if not directory then return nil, 'DiffBandit requires a local Oil directory' end
+    opts = vim.tbl_extend('force', {}, opts, { root = directory })
+  end
+  return find_root(opts)
+end
+
+-- Review everything this branch changed since it left the default branch.
+vim.keymap.set('n', '<Space>gc', function()
+  local root = require('dotfiles.project').root()
+  local result = vim.system({ 'git', '-C', root, 'symbolic-ref', '--short', 'refs/remotes/origin/HEAD' }, { text = true }):wait()
+  local base = result.code == 0 and vim.trim(result.stdout) or 'main'
+  local ok, err = diffbandit.git_compare(base, 'HEAD', { root = root })
+  if not ok and err then vim.notify('DiffBandit: ' .. tostring(err), vim.log.levels.ERROR) end
+end, { desc = 'DiffBandit branch vs default branch' })
 vim.keymap.set('n', '<Space>gb', '<cmd>DiffBanditGit<CR>', { desc = 'DiffBandit repository changes' })
 vim.keymap.set('n', '<Space>gB', '<cmd>DiffBanditGitCurrent<CR>', { desc = 'DiffBandit current file' })
 vim.keymap.set('n', '<Space>Jj', '<cmd>J log<CR>', { desc = 'Jujutsu log' })
