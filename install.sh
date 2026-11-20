@@ -46,6 +46,9 @@ link_file() {
 
 link_file "$DOTFILES/zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES/.config/tmux/tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
+link_file "$DOTFILES/.config/tmux/agent-session.py" "$CONFIG_HOME/tmux/agent-session.py"
+link_file "$DOTFILES/.config/sesh/sesh.toml" "$CONFIG_HOME/sesh/sesh.toml"
+link_file "$DOTFILES/.config/sesh/picker.sh" "$CONFIG_HOME/sesh/picker.sh"
 # Older Ubuntu tmux releases do not discover the XDG configuration path.
 link_file "$DOTFILES/.config/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_file "$DOTFILES/.config/nvim/init.lua" "$CONFIG_HOME/nvim/init.lua"

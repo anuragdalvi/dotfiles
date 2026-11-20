@@ -74,6 +74,8 @@ for _, src in ipairs({
   'nvim-mini/mini.ai', 'nvim-mini/mini.surround',
   'MagicDuck/grug-far.nvim', 'gbprod/yanky.nvim',
   'folke/sidekick.nvim',
+  'NicolasGB/jj.nvim', 'CoreyKaylor/diffbandit.nvim',
+  'mrjones2014/smart-splits.nvim', 'smart-splits-nvim/backend-tmux',
 }) do
   plugins[#plugins + 1] = { src = 'https://github.com/' .. src }
 end

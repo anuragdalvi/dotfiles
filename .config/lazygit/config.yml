@@ -3,4 +3,16 @@ gui:
   border: rounded
   sidePanelWidth: 0.28
 os:
-  editPreset: nvim
+  # Inside Neovim ($NVIM is set), hide the Space g s float and open the file
+  # in the editor underneath; elsewhere, start a normal Neovim.
+  edit: >-
+    if [ -z "$NVIM" ]; then nvim -- {{filename}}; else
+    nvim --server "$NVIM" --remote-expr "luaeval('require([[dotfiles.lazygit]]).hide()')" >/dev/null &&
+    nvim --server "$NVIM" --remote {{filename}}; fi
+  editAtLine: >-
+    if [ -z "$NVIM" ]; then nvim +{{line}} -- {{filename}}; else
+    nvim --server "$NVIM" --remote-expr "luaeval('require([[dotfiles.lazygit]]).hide()')" >/dev/null &&
+    nvim --server "$NVIM" --remote {{filename}} &&
+    nvim --server "$NVIM" --remote-expr "execute('{{line}}')" >/dev/null; fi
+  editAtLineAndWait: nvim +{{line}} -- {{filename}}
+  editInTerminal: true

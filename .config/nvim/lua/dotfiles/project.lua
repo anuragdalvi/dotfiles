@@ -4,6 +4,10 @@ M.python_markers = { { 'pyrightconfig.json', 'pyproject.toml', 'setup.py', 'setu
 function M.root(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  if vim.bo[bufnr].filetype == 'oil' then
+    local directory = require('oil').get_current_dir(bufnr)
+    if directory then return vim.fs.root(directory, '.git') or directory end
+  end
   if vim.b[bufnr].dotfiles_root then return vim.b[bufnr].dotfiles_root end
   local name = vim.api.nvim_buf_get_name(bufnr)
   if name == '' or vim.bo[bufnr].buftype ~= '' then return vim.t.dotfiles_root or vim.fn.getcwd() end

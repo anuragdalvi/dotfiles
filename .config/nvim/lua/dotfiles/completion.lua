@@ -1,4 +1,5 @@
 require('blink.cmp').setup({
+  enabled = function() return vim.g.dotfiles_completion ~= false end,
   keymap = {
     preset = 'default',
     ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -28,3 +29,8 @@ require('blink.cmp').setup({
   },
 })
 vim.lsp.config('*', { capabilities = require('blink.cmp').get_lsp_capabilities() })
+vim.keymap.set('n', '<Space>uc', function()
+  vim.g.dotfiles_completion = vim.g.dotfiles_completion == false
+  if not vim.g.dotfiles_completion then require('blink.cmp').hide() end
+  vim.notify('Completion ' .. (vim.g.dotfiles_completion and 'ON' or 'OFF') .. ' (this session)')
+end, { desc = 'Toggle completion for this session' })

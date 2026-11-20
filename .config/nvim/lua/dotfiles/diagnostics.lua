@@ -41,5 +41,6 @@ require('which-key').add({
   { '<leader>z', group = 'Debug' }, { '<leader>q', group = 'Sessions' },
   { '<leader>y', group = 'Yank / paths' },
   { '<leader>A', group = 'AI / OpenCode', mode = { 'n', 'x' } },
+  { '<leader>J', group = 'Jujutsu' },
   { 'gs', group = 'Surround', mode = { 'n', 'x' } },
 })
