@@ -83,7 +83,7 @@ bindkey '^X^E' edit-command-line
 # Alt-s opens the Sesh project picker from any prompt.
 _dotfiles_sesh_widget() {
   zle -I
-  sesh-pick </dev/tty
+  sesh-pick <"$TTY"  # tmux rejects the /dev/tty alias
   zle reset-prompt
 }
 zle -N _dotfiles_sesh_widget
