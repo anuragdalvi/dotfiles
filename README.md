@@ -422,6 +422,9 @@ Use `z dotfiles` to jump to a visited directory or `zi` for an interactive
 directory picker. `sesh-pick` selects or creates a tmux project session;
 inside tmux, `Ctrl-b K` opens the same picker in a popup. Sesh includes live
 tmux sessions, the configured dotfiles project, and zoxide directory history.
+In the picker, press `Ctrl-f` to browse folders under your home directory,
+including folders you have not visited yet, and `Ctrl-s` to return to sessions.
+Select a folder and press Enter to create or switch to its tmux session.
 Sesh manages tmux sessions; continue using Herdr's own workspace controls
 when running Herdr. Neovim's Persistence shortcuts restore editor sessions.
 
