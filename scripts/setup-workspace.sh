@@ -13,7 +13,7 @@ for tool in zoxide sesh jj tmux fzf python3; do
   elif command -v nix >/dev/null 2>&1; then
     package=$tool
     [ "$tool" != jj ] || package=jujutsu
-    nix --extra-experimental-features 'nix-command flakes' profile install "nixpkgs#$package"
+    nix --extra-experimental-features 'nix-command flakes' profile add "nixpkgs#$package"
   else
     printf 'Install %s with your package manager, then rerun this script.\n' "$tool" >&2
     printf 'See the Workspace tools section in README.md for upstream instructions.\n' >&2
